@@ -1,15 +1,22 @@
-#ifndef _EMAILSERVER_H
-#define _EMAILSERVER_H
+#ifndef EMAILSERVER_H
+#define EMAILSERVER_H
+#include <stdio.h>
+#include <curl/curl.h>
+#include <iostream>
+#include <string>
 
-#include "CSmtp.h"
+using namespace std;
 class EmailServer{
 	private:
-	CSmtp mail;
+	CURL *curl;
+	CURLcode res;
+	const char *data;
+	std::string formatEmailBody(std::string address, std::string content);
+
 	public:
-	EmailServer();
-	void sendEmail(string emailAddress, string message);
-	
-	
+	 void sendEmail(std::string address, std::string content);
+	 
 };
+
 
 #endif
