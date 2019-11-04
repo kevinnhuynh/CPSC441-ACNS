@@ -3,15 +3,20 @@
 #ifndef SHAREDFILESYSTEM_H
 #define SHAREDFILESYSTEM_H
 
+#include <string>
+#include <iostream> 
+#include <list> 
+#include <iterator> 
+#include "FileInfo.h"
 
-public class SharedFileSystem_H{
+class SharedFileSystem{
 	private:
-	list<FileInfo>fileList;
+		list<FileInfo>fileList;
 	
 	public:
-	void saveFile(string filename, string fileContents);
-	string getFile(string filename);
-	string listAllSharedFiles(string chatId);
+		void saveFile(string filename, string fileContents, string access);
+		string getFile(string filename, string access);
+		string listAllSharedFiles(string chatId);
 	
 	
 	
