@@ -1,24 +1,78 @@
+#include "ChatManager.h"
+//NOT COMPLETED
 
-
-//NOTCOMPLETED
-#ifndef CHATMANAGER_H
-#define CHATMANAGER_H
-
-class ChatManager{
-	private:
-		list<ChatHistory>publicChannels;
-		list<ChatHistory>privateChannels;
-
+string ChatManager::retrieveChat(string chatId, string access, string channelType){
+	list<ChatHistory>::iterator it;
+	if(channelType.compare("public"){
+	for (it = publicChannels.begin();it !=publicChannels.end();++it){
+		if(*(it).channelID == atoi(chatId)){
+		 return (*it).getFile();
+		}
 		
-	public:
-		string retrieveChat(string chatId, string access);
-		void addMessage(string chatId, string access, string message);
-		ChatHistory createChat(string access);
-		void addAccess(string access);
+	}
+	}
+	else{
+	for (it = privateChannels.begin();it !=privateChannels.end();++it){
+		if(*(it).channelID == atoi(chatId)){
+		 return (*it).getFile();
+		}
 		
+	}	
+	}
+}	
 	
+	void addMessage(string chatId, string access, string message){
+			list<ChatHistory>::iterator it;		
+		if(channelType.compare("public"){
+	for (it = publicChannels.begin();it !=publicChannels.end();++it){
+		if(*(it).channelID == atoi(chatId)){
+			break;
+		}
+		
+	}
+	}
+	else{
+	for (it = privateChannels.begin();it !=privateChannels.end();++it){
+		if(*(it).channelID == atoi(chatId)){
+			break;
+		}
+		
+	}	
+		(*it).addMessageToChat(message);
+		
+		
+	}
 	
+
+	
+string ChatManager::createChat(string access, string type){
+	if(type.compare("public")){
+		publicChannels.push_front(ChatHistory(access,type));
+		return string((publicChannels.front()).channelID);
+	}
+	else{
+		privateChannels.push_front(ChatHistory(access, type));
+		return string((privateChannels.front()).channelID);
+	}
 	
 }
 
-#endif
+void ChatManager::addAccess(string chatId, string access){
+		for (it = publicChannels.begin();it !=publicChannels.end();++it){
+		if(*(it).channelID == atoi(chatId)){
+			break;
+		}
+		
+	}
+	}
+	else{
+	for (it = privateChannels.begin();it !=privateChannels.end();++it){
+		if(*(it).channelID == atoi(chatId)){
+			break;
+		}
+		
+	}	
+	(*it).addAccess(access);
+	
+	
+}

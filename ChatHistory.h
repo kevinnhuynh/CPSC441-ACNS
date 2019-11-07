@@ -13,8 +13,8 @@ class ChatHistory:public FileInfo{
 		static int channelIDCounter;
 	
 	public:
-		ChatHistory(string filename, string access, string type);
-		
+		ChatHistory(string access, string type);
+		void addMessageToChat(string message);
 	
 };
 
