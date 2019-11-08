@@ -266,6 +266,18 @@ void sendData (int sock, char* buffer, int size)
         terminated = true;
 }
 
+void decipherMessage(std::string msg) {
+	if ("./" == msg.substr(0, 2)) {
+		std::string cmd = msg.substr(2,msg.size()-1);
+		// Commands here
+		if (cmd == "logout") {};
+			
+	}
+	else {
+		cout << "Unkown command: Please type in a command using the prefix './' (without quotes)\nEnter command: ";
+	}
+}
+/*
 void loginAccount(std::string) {
 	dbMan.
-}
+}*/
