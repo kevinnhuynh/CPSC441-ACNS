@@ -53,6 +53,24 @@ static int formatUser(void* data, int argc, char** argv, char** azColName)
 
 return 0 ;
 }
+
+static int formatChatList(void* data, int argc, char** argv, char** azColName)
+{
+
+        string* theChatList = static_cast<string*>(data);
+                
+      if(argv[0]){
+			(*theChatList)=argv[0];
+      }
+                else{
+                  (*theChatList)="";
+      
+                }
+        return 0 ;
+}
+
+
+
 //puts value of status into data
 static int sCheckStatus(void* data, int argc, char** argv, char** azColName){
         int * theStatus = static_cast<int*>(data);
@@ -92,6 +110,7 @@ void DatabaseManager::initializeTables(){
                         "PASSWORD       TEXT    NOT NULL,"
                         "EMAIL          TEXT    NOT NULL,"
                         "FRIENDLIST     TEXT    ,"
+						"CHATLIST     TEXT    ,"
                         "MACHINEID      TEXT    ,"
                                                 "STATUS                 INT             DEFAULT 0);";
 
@@ -100,7 +119,7 @@ void DatabaseManager::initializeTables(){
     cout<<"SQL error: "<< err_message<<endl;
 
   } else {
-    cout<< "Table STUDENTS created successfully"<<endl;
+    cout<< "Table USERS created successfully"<<endl;
   }
 
 
@@ -149,10 +168,38 @@ string DatabaseManager::addFriend(string username, string friendUsername){
 
 }
 
+string DatabaseManager::addChatId(string username, string chatId){
+
+		string sql("SELECT CHATLIST FROM USERS WHERE USERNAME ='"+username+"';");
+	   string chats;
+	    actionStatus = sqlite3_exec(DB, sql.c_str(),formatChatList, &chats, &err_message);
+		chats+=(chatId+"\n");
+        sql = "UPDATE USERS set CHATLIST = '"+chats+"' where USERNAME='"+username+"';";
+        actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
+
+       // cout<<"SQL error: "<< err_message<<endl;
+
+                return chats;
+
+}
+
+string DatabaseManager::removeChatId(string username, string chatId){
+		User forScope;
+       string sql("SELECT CHATLIST FROM USERS WHERE USERNAME ='"+username+"';");
+	   string chats;
+	   actionStatus = sqlite3_exec(DB, sql.c_str(),formatChatList, &chats, &err_message);
+		list<string>temp = forScope.convertStringToStringList(chats);
+		temp.remove(chatId);
+                cout<<"before update"<<endl;
+        sql = "UPDATE USERS set CHATLIST = '"+forScope.convertStringListToString(temp)+"' where USERNAME='"+username+"';";
+        actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
+                return forScope.convertStringListToString(temp);
+}
+
 bool DatabaseManager::checkStatus(string username){
         int status;
         string sql("SELECT STATUS FROM USERS WHERE USERNAME ='"+username+"';");
-    actionStatus = sqlite3_exec(DB, sql.c_str(), sCheckStatus, &status, &err_message);
+		actionStatus = sqlite3_exec(DB, sql.c_str(), sCheckStatus, &status, &err_message);
 
         return status;
 
@@ -170,4 +217,11 @@ string DatabaseManager::getFriendList(string username){
 	string sql("SELECT FRIENDLIST FROM USERS WHERE USERNAME ='"+username+"';");
     actionStatus = sqlite3_exec(DB, sql.c_str(), sGetFriendList, &friendList, &err_message);
 	return friendList;
+}
+
+string DatabaseManager::getChatList(string username){
+	string chatList;
+	string sql("SELECT CHATLIST FROM USERS WHERE USERNAME ='"+username+"';");
+    actionStatus = sqlite3_exec(DB, sql.c_str(), formatChatList, &chatList, &err_message);
+	return chatList;
 }

@@ -47,6 +47,19 @@ cout<<firstUser.toString()<<endl;
 		
 		cout<<"testing get friendlist"<<endl;
 		cout<<myManager.getFriendList("frank");
-}
+		
+		cout<<"Testing add chatIds"<<endl;
+		cout<<myManager.addChatId("frank", "1")<<endl;
+		cout<<myManager.addChatId("frank", "2")<<endl;
+		
+		cout<<"testing remove chatIds"<<endl;
+		cout<<myManager.removeChatId("frank","1")<<endl;
+		
+		
+		cout<<endl;
+		cout<<myManager.getChatList("frank")<<endl;
+		cout<<"whataboutemptyChatList"<<endl;
+		cout<<myManager.getChatList("Heather")<<endl;
+		}
 
 #endif

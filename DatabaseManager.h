@@ -3,7 +3,9 @@
 #include <list>
 
 #include <vector>
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include <sstream>
+#include <string>
 #include <iostream>
 #include <sqlite3.h>
 #include "User.h"
@@ -43,6 +45,21 @@ class DatabaseManager{
 		*removes a friend's username from a user's friend list and returns the updated friend list as a string
 		*/
         string removeFriend(string username, string friendUsername);
+		 
+		 /*
+		*adds a cht to a users chatlist and returns the updatedchat list as a string
+		*/
+		string addChatId(string username, string chatId);
+		
+		/*
+		*removes a chat from a user's chatlist and returns the updatedchat list as a string
+		*/
+        string removeChatId(string username, string chatId);
+		/*
+		* returns a string of all the filenames of chats a user has access to separated by /n
+		*/
+		string getChatList(string username);
+		
 		
 		/*
 		*NOT IMPLEMENTED YET, ASSIGNMENT 4
