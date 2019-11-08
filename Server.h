@@ -10,16 +10,16 @@ using namespace std;
 
 class Server {
 private:
-	void decipherMessage(std::string);
+	std::string *decipherHeader(std::string);
 	void handleFailure();
 	void manageErrorQueue();
 
 public:
 	void sendEmail(std::string, std::string);
 	//void createAccount();
-	void loginAccount();
-	void sendMessages();
-	void sendChatHistory();
+	void loginAccount(std::string);
+	void sendMessages(std::string);
+	void sendChatHistory(std::string);
 	void logoutUser();
 	void sendFriendRequest();
 	void addFriend();

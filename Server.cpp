@@ -3,8 +3,10 @@
  * For use in CPSC 441 lectures
  * Instructor: Prof. Mea Wang
  */
- 
+
 #include "Server.h"
+#include "DatabaseManager.h"
+#include "User.h"
 #include <iostream>
 #include <sys/socket.h> // for socket(), connect(), send(), and recv()
 #include <arpa/inet.h>  // for sockaddr_in and inet_addr()
@@ -26,6 +28,8 @@ int  initServer(int&, int port);
 void processSockets(fd_set);
 void sendData(int, char[], int);
 void receiveData(int, char[], int&);
+
+DatabaseManager dbMan;
 
 int main(int argc, char *argv[])
 {
@@ -66,7 +70,7 @@ int main(int argc, char *argv[])
 
     // Add the listening socket to the set
     FD_SET(serverSock, &recvSockSet);
-    maxDesc = max(maxDesc, serverSock);
+    maxDesc = std::max(maxDesc, serverSock);
 
 	// Adds any child sockets to the set
 	for (i = 0; i < MAXCLIENTS; i++) {
@@ -117,7 +121,7 @@ int main(int argc, char *argv[])
 
             // Add the new connection to the receive socket set
             FD_SET(clientSock, &recvSockSet);
-            maxDesc = max(maxDesc, clientSock);
+            maxDesc = std::max(maxDesc, clientSock);
 
 			// Add new socket to list
 			for (i = 0; i < MAXCLIENTS; i++) {
@@ -242,6 +246,7 @@ void receiveData (int sock, char* inBuffer, int& size)
 
     string msg = string(inBuffer);
     cout << "Client: " << msg;
+	// Handles the string
 }
 
 void sendData (int sock, char* buffer, int size)
@@ -260,4 +265,27 @@ void sendData (int sock, char* buffer, int size)
     if (strncmp(buffer, "terminate", 9) == 0)
         terminated = true;
 }
-    
+/*
+std::string *decipherHeader(std::string header) {
+	std::string headerArr[5] = [header.substr(0,40), header.substr(40,12), header.substr(52,20), header.substr(72,12), header.substr(84,8)];
+	return headerArr;
+}
+
+
+if ("./" == header.substr(40, 2)) {
+	std::string cmd = header.substr(2, msg.size() - 1);
+	// Commands here
+	if (cmd == "addfriend") {
+		return dbMan.addFriend(substr(72, 12), substr(52, 20));
+	}
+	else if (cmd == "deletefriend") {
+		return dbMan.removeFriend(substr(72, 12), substr(52, 20));
+	}
+	else if (cmd == "logout") {};
+}*/
+
+/*
+void loginAccount(std::string) {
+	dbMan.
+}*/
+
