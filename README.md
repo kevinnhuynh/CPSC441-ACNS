@@ -12,7 +12,9 @@ The below command will create the server
 
 make Server
 
+Run the server with
 
+./Server
 
 if using the command line, you need to use both of these options while compiling
 -lsqlite3
