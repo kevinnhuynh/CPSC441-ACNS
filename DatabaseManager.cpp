@@ -129,7 +129,6 @@ void DatabaseManager::storeUser(User user){
 
         string sql("INSERT INTO USERS ('USERNAME', 'PASSWORD','EMAIL') VALUES('"+user.getUserName()+"', '"+user.getPassword()+"', '"+user.getEmail()+"');");
         actionStatus = sqlite3_exec(DB, sql.c_str(), NULL, 0, &err_message);
-cout<<sql<<endl;
 //cout<<"SQL error: "<< err_message<<endl;
 
 }
@@ -143,28 +142,39 @@ User DatabaseManager::getUser(string user){
         return foundUser;
 }
 
-
-
 string DatabaseManager::removeFriend(string username, string friendUsername){
-         User temp = getUser(username);
+        //remove from second friends list
+		User temp = getUser(friendUsername);
         list<string> friends= temp.getFriendList();
+        friends.remove(username);
+        string sql = "UPDATE USERS set FRIENDLIST = '"+temp.convertStringListToString(friends)+"' where USERNAME='"+friendUsername+"';";
+        actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
+		
+		//remove from first friends list
+		temp = getUser(username);
+        friends= temp.getFriendList();
         friends.remove(friendUsername);
-                cout<<"before update"<<endl;
-        string sql = "UPDATE USERS set FRIENDLIST = '"+temp.convertStringListToString(friends)+"' where USERNAME='"+username+"';";
+        sql = "UPDATE USERS set FRIENDLIST = '"+temp.convertStringListToString(friends)+"' where USERNAME='"+username+"';";
         actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
                 return temp.convertStringListToString(friends);
 }
 
 string DatabaseManager::addFriend(string username, string friendUsername){
-        User temp = getUser(username);
+		//add to second friends userlist
+	    User temp = getUser(friendUsername);
         list<string> friends= temp.getFriendList();
-        friends.push_front(friendUsername);
-        string sql = "UPDATE USERS set FRIENDLIST = '"+temp.convertStringListToString(friends)+"' where USERNAME='"+username+"';";
+        friends.push_front(username);
+        string sql = "UPDATE USERS set FRIENDLIST = '"+temp.convertStringListToString(friends)+"' where USERNAME='"+friendUsername+"';";
         actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
 
-       // cout<<"SQL error: "<< err_message<<endl;
-
-                return temp.convertStringListToString(friends);
+		//add to first friends userlist
+		temp = getUser(username);
+        friends= temp.getFriendList();
+        friends.push_front(friendUsername);
+        sql = "UPDATE USERS set FRIENDLIST = '"+temp.convertStringListToString(friends)+"' where USERNAME='"+username+"';";
+        actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
+        //return updated list to requesting friend
+		return temp.convertStringListToString(friends);
 
 }
 
