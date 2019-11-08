@@ -5,7 +5,7 @@
 using namespace std;
 
 
-#if 1
+#if 0
 
 //main for testing creation, insertion and deletion of User from Database
 int main(){
