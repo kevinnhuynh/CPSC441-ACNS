@@ -1,4 +1,5 @@
-
+//NOT COMPLETED FOR ASSIGNMENT4
+#if 0
 
 #ifndef SHAREDFILESYSTEM_H
 #define SHAREDFILESYSTEM_H
@@ -23,5 +24,7 @@ class SharedFileSystem{
 };
 
 
+
+#endif
 
 #endif
