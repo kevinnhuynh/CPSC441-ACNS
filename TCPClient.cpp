@@ -315,6 +315,6 @@ void getTimeStamp() {
 void headerSent (char* outBuffer){
     getMachineId();
     getCommand(outBuffer);
-    getTimeStamp;
+    getTimeStamp();
     header = machineId + commandSent + requestId + userId + timeStamp;
 }
