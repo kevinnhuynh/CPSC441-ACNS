@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const int BUFFERSIZE = 32;		// Size the message buffers
+const int BUFFERSIZE = 1024;		// Size the message buffers
 const int MAXPENDING = 10;		// Maximum pending connections
 const int MAXCLIENTS = 20;		// Maximum capacity of clients on the server at the same time
 
