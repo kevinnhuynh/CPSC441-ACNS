@@ -12,16 +12,16 @@ all: Server
 Server: Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o 
 	g++ --std=c++11 -o Server Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o -lsqlite3 -lcurl
 
-Client: Client.o
-	g++ --std=c++11 -o Client Client.o
+Client: TCPClient.o
+	g++ --std=c++11 -o Client TCPClient.o
 
 SetUpDatabase:
 	g++ --std=c++11 -o Server User.o DatabaseManager.o ChatManager.o ChatHistory.o fileInfo.o ChatSystemDemoSetup.o -lsqlite3
 
 #ADD MORE COMPILE COMMANDS HERE FOR SERVER
 
-Client.o: Client.cpp
-	g++ --std=c++11 -c Client.cpp
+TCPClient.o: TCPClient.cpp
+	g++ --std=c++11 -c TCPClient.cpp
 
 User.o: User.cpp
 	g++ --std=c++11	-c User.cpp
