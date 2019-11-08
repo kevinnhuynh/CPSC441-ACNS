@@ -13,7 +13,7 @@ Server: Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistor
 	g++ --std=c++11 -o Server Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o -lsqlite3 -lcurl
 
 Client: Client.o
-	g++ --std=c++11 -o Client
+	g++ --std=c++11 -o Client Client.o
 
 SetUpDatabase:
 	g++ --std=c++11 -o Server User.o DatabaseManager.o ChatManager.o ChatHistory.o fileInfo.o ChatSystemDemoSetup.o -lsqlite3
@@ -45,7 +45,7 @@ EmailServer.o: EmailServer.cpp
 	g++ -c EmailServer.cpp
 
 Server.o: Server.cpp
-	g++ -c Server.cpp
+	g++ --std=c++11 -c Server.cpp
 
 clean:
 	rm *.o Server
