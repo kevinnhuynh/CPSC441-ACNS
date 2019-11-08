@@ -1,3 +1,5 @@
+//NOT COMPLETED FOR ASSIGNMENT4
+#if 1
 #include "SharedFileSystem.h"
 
 using namespace std; 
@@ -33,9 +35,5 @@ string SharedFileSystem::listAllSharedFiles(string chatId){
 	}
 	return sharedFiles;
 }
+#endif
 
-
-int main(){
-	
-	return 0;
-}
