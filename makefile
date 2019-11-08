@@ -1,18 +1,16 @@
+
 # Makefile for compiling Server
 
 #***********************************************************
 
 #Variables
 
-CXX = g++
-CXXFLAGS = -Wall -lcurl
-
 #**************************************************************
 
 all: Server
 
 Server: Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o 
-	g++ --std=c++11 -o Server Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o -lsqlite3
+	g++ --std=c++11 -o Server Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o -lsqlite3 -lcurl
 
 SetUpDatabase:
 	g++ --std=c++11 -o Server User.o DatabaseManager.o ChatManager.o ChatHistory.o fileInfo.o ChatSystemDemoSetup.o -lsqlite3
