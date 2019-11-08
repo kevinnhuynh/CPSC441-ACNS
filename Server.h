@@ -10,7 +10,7 @@ using namespace std;
 
 class Server {
 private:
-	void decipherMessage(std::string);
+	std::string *decipherHeader(std::string);
 	void handleFailure();
 	void manageErrorQueue();
 

@@ -247,7 +247,6 @@ void receiveData (int sock, char* inBuffer, int& size)
     string msg = string(inBuffer);
     cout << "Client: " << msg;
 	// Handles the string
-	decipherMessage(msg);
 }
 
 void sendData (int sock, char* buffer, int size)
@@ -267,15 +266,26 @@ void sendData (int sock, char* buffer, int size)
         terminated = true;
 }
 
-void decipherMessage(std::string msg) {
-	if ("./" == msg.substr(0, 2)) {
-		std::string cmd = msg.substr(2,msg.size()-1);
-		// Commands here
-		if (cmd == "logout") {};
-			
-	}
+std::string *decipherHeader(std::string header) {
+	std::string headerArr[5] = [header.substr(0,40), header.substr(40,12), header.substr(52,20), header.substr(72,12), header.substr(84,8)];
+	return headerArr;
 }
+
+/*
+if ("./" == header.substr(40, 2)) {
+	std::string cmd = header.substr(2, msg.size() - 1);
+	// Commands here
+	if (cmd == "addfriend") {
+		return dbMan.addFriend(substr(72, 12), substr(52, 20));
+	}
+	else if (cmd == "deletefriend") {
+		return dbMan.removeFriend(substr(72, 12), substr(52, 20));
+	}
+	else if (cmd == "logout") {};
+}*/
+
 /*
 void loginAccount(std::string) {
 	dbMan.
 }*/
+
