@@ -1,7 +1,7 @@
 #include "ChatHistory.h"
 #include "ChatManager.h"
 
-#if 1
+#if 0
 
 int main(){
 ChatManager myManager;
