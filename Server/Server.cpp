@@ -5,6 +5,8 @@
  */
  
 #include "Server.h"
+#include "DatabaseManager.cpp"
+#include "User.cpp"
 #include <iostream>
 #include <sys/socket.h> // for socket(), connect(), send(), and recv()
 #include <arpa/inet.h>  // for sockaddr_in and inet_addr()
@@ -26,6 +28,8 @@ int  initServer(int&, int port);
 void processSockets(fd_set);
 void sendData(int, char[], int);
 void receiveData(int, char[], int&);
+
+DatabaseManager dbMan;
 
 int main(int argc, char *argv[])
 {
@@ -242,6 +246,7 @@ void receiveData (int sock, char* inBuffer, int& size)
 
     string msg = string(inBuffer);
     cout << "Client: " << msg;
+	// Handle the string
 }
 
 void sendData (int sock, char* buffer, int size)
@@ -260,4 +265,7 @@ void sendData (int sock, char* buffer, int size)
     if (strncmp(buffer, "terminate", 9) == 0)
         terminated = true;
 }
-    
+
+void loginAccount(std::string) {
+	dbMan.
+}
