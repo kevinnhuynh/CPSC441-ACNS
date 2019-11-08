@@ -201,6 +201,11 @@ void getCommand(char* outBuffer) {
         commandSent = "addfriend";
         requestId = str.substr(str.find(" ") + 1);
     }
+    if (strncmp(outBuffer, "./friendlist", 12) == 0)
+    {
+        commandSent = "friendlist";
+        requestId = str.substr(str.find(" ") + 1);
+    }
     if (strncmp(outBuffer, "./deletefriend", 14) == 0)
     {
         commandSent = "deletefriend";
@@ -293,7 +298,7 @@ void getCommand(char* outBuffer) {
     }
     commandSent.resize(12,' ');
     requestId.resize(20,' ');
-    userId.resize(12, ' ');
+    userId.resize(20, ' ');
 }
 
 // reference from https://stackoverflow.com/questions/16357999/current-date-and-time-as-string
@@ -315,6 +320,6 @@ void getTimeStamp() {
 void headerSent (char* outBuffer){
     getMachineId();
     getCommand(outBuffer);
-    getTimeStamp;
+    getTimeStamp();
     header = machineId + commandSent + requestId + userId + timeStamp;
 }
