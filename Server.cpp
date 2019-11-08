@@ -246,7 +246,8 @@ void receiveData (int sock, char* inBuffer, int& size)
 
     string msg = string(inBuffer);
     cout << "Client: " << msg;
-	// Handle the string
+	// Handles the string
+	decipherMessage(msg);
 }
 
 void sendData (int sock, char* buffer, int size)
