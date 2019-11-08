@@ -5,6 +5,8 @@
  */
  
 #include "Server.h"
+#include "DatabaseManager.cpp"
+#include "User.cpp"
 #include <iostream>
 #include <sys/socket.h> // for socket(), connect(), send(), and recv()
 #include <arpa/inet.h>  // for sockaddr_in and inet_addr()
@@ -14,7 +16,7 @@
 
 using namespace std;
 
-const int BUFFERSIZE = 32;		// Size the message buffers
+const int BUFFERSIZE = 1024;		// Size the message buffers
 const int MAXPENDING = 10;		// Maximum pending connections
 const int MAXCLIENTS = 20;		// Maximum capacity of clients on the server at the same time
 
@@ -26,6 +28,8 @@ int  initServer(int&, int port);
 void processSockets(fd_set);
 void sendData(int, char[], int);
 void receiveData(int, char[], int&);
+
+DatabaseManager dbMan;
 
 int main(int argc, char *argv[])
 {
@@ -242,6 +246,8 @@ void receiveData (int sock, char* inBuffer, int& size)
 
     string msg = string(inBuffer);
     cout << "Client: " << msg;
+	// Handles the string
+	decipherMessage(msg);
 }
 
 void sendData (int sock, char* buffer, int size)
@@ -260,4 +266,19 @@ void sendData (int sock, char* buffer, int size)
     if (strncmp(buffer, "terminate", 9) == 0)
         terminated = true;
 }
-    
+
+void decipherMessage(std::string msg) {
+	if ("./" == msg.substr(0, 2)) {
+		std::string cmd = msg.substr(2,msg.size()-1);
+		// Commands here
+		if (cmd == "logout") {};
+			
+	}
+	else {
+		cout << "Unkown command: Please type in a command using the prefix './' (without quotes)\nEnter command: ";
+	}
+}
+/*
+void loginAccount(std::string) {
+	dbMan.
+}*/
