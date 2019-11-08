@@ -22,3 +22,4 @@ cout<<myManager.addMessage("1","Heather","not much, u?")<<"\n\n";
 cout<<myManager.retrieveChat("1","frank","private");
 }
 #endif
+

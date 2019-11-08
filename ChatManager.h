@@ -27,7 +27,6 @@ class ChatManager{
 	*returns a string containing all the chat history for the requested chatID and whose requesting(access)
 	*/
 		string retrieveChat(string chatId, string access, string channelType);
-		
 		/*
 		*adds the message to the chat and returns the updated chat
 		*/
@@ -47,6 +46,17 @@ class ChatManager{
 		*saves a chatHistory object in the database
 		*/
 		void storeChat(ChatHistory chat);
+		
+		/*
+		*saves the chatHistoryCounter into a file so the filenaming system won't get messed up
+		*/
+		void saveChatHistoryCounter();
+		
+		/*
+		*reads the ChtHistoryCounter from a file to preserve the filenaming system
+		*/
+		void readChatHistoryCounter();
+		
 		//next two are for formatting - changing between strings and list<string>
 		static string convertStringListToString(list<string>theList);
 		static list<string> convertStringToStringList(string theString);

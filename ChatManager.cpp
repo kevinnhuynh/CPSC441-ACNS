@@ -56,6 +56,21 @@ void ChatManager::addAccess(string chatId, string access){
 	updateAccessInDB((*it).getFilename(),(*it).getAccessIDList());
 }
 
+void ChatManager::saveChatHistoryCounter(){
+	fstream fileptr;
+	fileptr.open("SaveStaticChatHistoryCounter.txt", ios::out|ios::in);
+	fileptr<<ChatHistory::channelIDCounter;
+	fileptr.close();
+	
+}
+
+void ChatManager::readChatHistoryCounter(){
+	
+	fstream fileptr;
+	fileptr.open("SaveStaticChatHistoryCounter.txt", ios::out|ios::in);
+	fileptr>>ChatHistory::channelIDCounter;
+	fileptr.close();
+}
 
 /****************************************************************/
 
@@ -64,12 +79,14 @@ ChatManager::ChatManager(){
         err_message = NULL;
         initializeTables();
 		createChannelListFromDB();
+		readChatHistoryCounter();
 
 }
 
 ChatManager::~ChatManager(){
         sqlite3_free(err_message);
     sqlite3_close(DB);
+	saveChatHistoryCounter();
 }
 
 void ChatManager::initializeTables(){

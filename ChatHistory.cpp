@@ -41,7 +41,3 @@ ChatHistory ChatHistory::operator = (const ChatHistory&src){
 	this->channelType = src.channelType;
 	return *this;
 }
-
-
-
-
