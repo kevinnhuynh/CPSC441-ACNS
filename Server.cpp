@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
 
     // Add the listening socket to the set
     FD_SET(serverSock, &recvSockSet);
-    maxDesc = max(maxDesc, serverSock);
+    maxDesc = std::max(maxDesc, serverSock);
 
 	// Adds any child sockets to the set
 	for (i = 0; i < MAXCLIENTS; i++) {
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
             // Add the new connection to the receive socket set
             FD_SET(clientSock, &recvSockSet);
-            maxDesc = max(maxDesc, clientSock);
+            maxDesc = std::max(maxDesc, clientSock);
 
 			// Add new socket to list
 			for (i = 0; i < MAXCLIENTS; i++) {
@@ -273,9 +273,6 @@ void decipherMessage(std::string msg) {
 		// Commands here
 		if (cmd == "logout") {};
 			
-	}
-	else {
-		cout << "Unkown command: Please type in a command using the prefix './' (without quotes)\nEnter command: ";
 	}
 }
 /*
