@@ -43,7 +43,7 @@ void FileInfo::saveFile(string fileContents){
 
 string FileInfo::getFile(){
 	fileptr.open(filename.c_str(), ios::out|ios::in);
-	string fileContents;
+	string fileContents = "";
 	string fileLine;
 	while(getline(fileptr,fileLine)){
 		fileContents+=fileLine+"\n";
