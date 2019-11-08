@@ -5,8 +5,8 @@
  * Instructor: Prof. Mea Wang
  */
  
-#include <Server.h>
-#include <EmailServer.cpp>
+#include "Server.h"
+//#include "EmailServer.cpp"
 #include <sys/socket.h> // for socket(), connect(), send(), and recv()
 #include <arpa/inet.h>  // for sockaddr_in and inet_addr()
 #include <stdlib.h>     // for atoi() and exit()
@@ -22,7 +22,7 @@ using namespace std;
 
 const int BUFFERSIZE = 1024;   // Size the message buffers
 const int MAXPENDING = 10;    // Maximum pending connections
-const int maxClient = 100;
+const int MAXCLIENT = 100;
 
 int main(int argc, char *argv[]) {
     int serverSock;                  // server socket descriptor
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 	int maxSockDesc;
 	int i;
 
-	fd_set readfds;
+	fd_set recvfds;
 
     struct sockaddr_in clientAddr;   // address of the client
     
@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-	for (i = 0; i < maxClient; i++)
+	for (i = 0; i < MAXCLIENT; i++)
 		clientSocket[i] = 0;
     
 	// Create a TCP socket
@@ -76,6 +76,8 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
+	struct sockaddr_in serverAddr;
+
 	// Initialize the server information
 	// Note that we can't choose a port less than 1023 if we are not privileged users (root)
 	memset(&serverAddr, 0, sizeof(serverAddr));         // Zero out the structure
@@ -89,7 +91,7 @@ int main(int argc, char *argv[]) {
 		cout << "bind() failed" << endl;
 		exit(1);
 	}
-	printf("Port: %d \n", port);
+	printf("Port: %d \n", atoi(argv[1]));
 
 	// Listen for connection requests
 	if (listen(serverSock, MAXPENDING) < 0)
@@ -99,7 +101,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	addressSize = sizeof(serverAddr);
-	puts("Waiting for connections..");
+	puts("Server initiated.\nWaiting for connections..");
 
 	/*
     // set the size of the client address structure
@@ -118,38 +120,37 @@ int main(int argc, char *argv[]) {
     // Start communication with the client (terminate when receive a "terminate" command)
     while (strncmp(inBuffer, "terminate", 9) != 0)
     {
-		FD_ZERO(&readfds);
+		FD_ZERO(&recvfds);
 
-		FD_SET(serverSock, &readfds);
-		max_sd = serverSock;
+		FD_SET(serverSock, &recvfds);
+		maxSockDesc = std::max(maxSockDesc, serverSock);
 
-		for (i = 0; i < maxClient; i++) {
-			sockDesc = client_socket[i];
+		for (i = 0; i < MAXCLIENT; i++) {
+			sockDesc = clientSocket[i];
 			
 			if (sockDesc > 0)
-				sockDesc, &readfds;
+				sockDesc, &recvfds;
 
 			if (sockDesc > maxSockDesc)
 				maxSockDesc = sockDesc;
 		}
 
-		activity = select(maxSockDesc + 1, &readfds, NULL, NULL, NULL);
-
+		activity = select(maxSockDesc + 1, &recvfds, NULL, NULL, NULL);
 		if ((activity < 0) && (errno != EINTR))
 			printf("select() error");
 
-		if (FD_ISSET(serverSock, &readfds)) {
-			if ((clientSock = accept(serverSock, (struct sockaddr *)&serverAddr, (socklen_t*)&addrlen)) < 0) {
+		if (FD_ISSET(serverSock, &recvfds)) {
+			if ((clientSock = accept(serverSock, (struct sockaddr *)&serverAddr, (socklen_t*)&addressSize)) < 0) {
 				cout << "accept() client error" << endl;
 				exit(1);
 			}
 
-			printf("New connection established: IP: %s, Socket fd: %d\n" , inet_ntoa(serverAddr.sin_addr), clientSock);
+			std::cout << "New connection established: IP: " << inet_ntoa(serverAddr.sin_addr) << ", Socket fd : " << clientSock << "\n";
 			
-			if (send(clientSock, getMessage(), strlen(getMessage()), 0) != str(getMessage()))
+			if (send(clientSock, (char*)"hey", strlen((char*)"hey"), 0) != strlen((char*)"hey"))
 				cout << "send() message to client error" << endl;
 
-			for (i = 0; i < maxClient; i++) {
+			for (i = 0; i < MAXCLIENT; i++) {
 				if (clientSocket[i] == 0) {
 					clientSocket[i] = clientSock;
 					printf("Adding %d to list\n", i);
@@ -158,20 +159,20 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		for (i = 0; i < maxClient; i++) {
-			sockDesc = clientSocket[i]
+		for (i = 0; i < MAXCLIENT; i++) {
+			sockDesc = clientSocket[i];
 
-				if (FD_ISSET(sockDesc, &readfds)) {
-					if ((valueRead = read(sockDesc, inBuffer, 1024)) == 0) {
-						getpeername(sockDesc, (struct sockaddr*)&serverAddr, (socklen_t*)&addressSize);
-						printf("Host disconnected: IP: %s, port: %d\n", inet_ntoa(serverAddr.sin_addr), ntohs(serverAddr.sin_port));
-						close(sockDesc);
-						clientSocket[i] = 0;
-					}
-					else {
-						inBuffer[valueRead] = '\0';
-						send(sockDesc, inBuffer, strlen(inBuffer), 0);
-					}
+			if (FD_ISSET(sockDesc, &recvfds)) {
+				if ((valueRead = read(sockDesc, inBuffer, 1024)) == 0) {
+					getpeername(sockDesc, (struct sockaddr*)&serverAddr, (socklen_t*)&addressSize);
+					printf("Host disconnected: IP: %s, port: %d\n", inet_ntoa(serverAddr.sin_addr), ntohs(serverAddr.sin_port));
+					close(sockDesc);
+					clientSocket[i] = 0;
+				}
+				else {
+					inBuffer[valueRead] = '\0';
+					send(sockDesc, inBuffer, strlen(inBuffer), 0);
+				}
 			}
 		}
 
@@ -209,13 +210,13 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 }
-
+/*
 // Deciphers the type of message in the content sent to the Server
 std::string decipherMessage(std::string content) {
 	// If content is a chat message
 	if (content) { continue; }
 	// If content is a message for an address
-	if else (content == )
+	if else (content)
 		// If content is a friend request / removal
 }
 
@@ -226,4 +227,4 @@ void Server::sendEmail(std::string address, std::string content) {
 
 void sendMessages() {
 
-}
+}*/

@@ -1,4 +1,4 @@
-# Header file for Server.cpp
+// Header file for Server.cpp
 
 #ifndef SERVER_H
 #define SERVER_H
@@ -13,7 +13,6 @@ private:
 	std::string decipherMessage(std::string);
 	void handleFailure();
 	void manageErrorQueue();
-	void initServer(int socket, int port);
 
 public:
 	void sendEmail(std::string, std::string);
