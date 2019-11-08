@@ -10,14 +10,31 @@ FileInfo::FileInfo(string filename, string access){
 	accessIDList.push_front(access);
 	
 }
+
+FileInfo::FileInfo(string filename, list<string> accessList){
+	
+	this->filename = filename;
+	accessIDList = accessList;
+	
+}
+
 FileInfo::FileInfo(const FileInfo& src){
 	accessIDList=src.accessIDList;
 	filename = src.filename;
 
+
+}
+
+FileInfo FileInfo::operator = (const FileInfo& rhs){
+	accessIDList = rhs.accessIDList;
+	filename = rhs.filename;
+	return *this;
+	
+	
 }
 
 void FileInfo::saveFile(string fileContents){
-	fileptr.open(filename, ios::out|ios::in);
+	fileptr.open(filename.c_str(), ios::out|ios::in);
 	fileptr<<fileContents;
 	fileptr.close();
 	
@@ -25,7 +42,7 @@ void FileInfo::saveFile(string fileContents){
 
 
 string FileInfo::getFile(){
-	fileptr.open(filename, ios::out|ios::in);
+	fileptr.open(filename.c_str(), ios::out|ios::in);
 	string fileContents;
 	string fileLine;
 	while(getline(fileptr,fileLine)){

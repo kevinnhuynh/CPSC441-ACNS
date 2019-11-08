@@ -1,6 +1,7 @@
 #include "ChatHistory.h"
 #include "ChatManager.h"
 
+#if 1
 
 int main(){
 ChatManager myManager;
@@ -20,3 +21,4 @@ cout<<myManager.addMessage("1", "frank", "yo whats up heather")<<"\n\n";
 cout<<myManager.addMessage("1","Heather","not much, u?")<<"\n\n";
 cout<<myManager.retrieveChat("1","frank","private");
 }
+#endif
