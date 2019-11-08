@@ -11,9 +11,9 @@ class ChatHistory:public FileInfo{
 	private:
 		int channelID;
 		string channelType;
-		static int channelIDCounter;
 	
 	public:
+		static int channelIDCounter;
 		ChatHistory(string access, string type);
 		ChatHistory(string filename, string channelId, string channelType,list<string>accessList);
 		ChatHistory():FileInfo(){};
