@@ -2,7 +2,7 @@
 *this main sets up the database of users and chathistories, only run if you need to create databases or, if you want to
 * start the database overagain from the begining, delete .db files, and changethe SaveChatHistoryCounter to 0
 */
-#if 0
+
 #include "User.h"
 #include "DatabaseManager.h"
 #include "ChatManager.h"
@@ -125,7 +125,7 @@ int main(){
 	
 }
 
-#endif
+
 #endif
 
 

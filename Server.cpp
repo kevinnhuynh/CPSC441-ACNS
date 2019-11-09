@@ -3,10 +3,10 @@
  * For use in CPSC 441 lectures
  * Instructor: Prof. Mea Wang
  */
- 
+
 #include "Server.h"
-#include "DatabaseManager.cpp"
-#include "User.cpp"
+#include "DatabaseManager.h"
+#include "User.h"
 #include <iostream>
 #include <sys/socket.h> // for socket(), connect(), send(), and recv()
 #include <arpa/inet.h>  // for sockaddr_in and inet_addr()
@@ -274,7 +274,7 @@ void sendData (int sock, char* buffer, int size)
     if (strncmp(buffer, "terminate", 9) == 0)
         terminated = true;
 }
-
+/*
 std::string *decipherHeader(std::string header) {
 	std::string headerArr[5];
 	headerArr[0] = header.substr(0, 40);
@@ -285,7 +285,7 @@ std::string *decipherHeader(std::string header) {
 	return headerArr;
 }
 
-/*
+
 if ("./" == header.substr(40, 2)) {
 	std::string cmd = header.substr(2, msg.size() - 1);
 	// Commands here
