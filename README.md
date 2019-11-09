@@ -14,7 +14,7 @@ make Server
 
 Run the server with
 
-./Server
+./Server 9000
 
 if using the command line, you need to use both of these options while compiling
 -lsqlite3

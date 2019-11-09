@@ -55,6 +55,15 @@ int main(int argc, char *argv[])
 	for (i = 0; i < MAXCLIENTS; i++)
 		clientSocket[i] = 0;
 
+	std::string machineId(40,'0');
+	std::string commandSent(3,'1');
+	std::string requestId(20,'2');
+	std::string userId(12,'3');
+	std::string timeStamp(8,'4');
+	std::string *string[5];
+	*string = decipherHeader(machineId+commandSent+requestId+userId+timeStamp);
+	printf(*string);
+
     // Check for input errors
     if (argc != 2)
     {
@@ -267,7 +276,12 @@ void sendData (int sock, char* buffer, int size)
 }
 
 std::string *decipherHeader(std::string header) {
-	std::string headerArr[5] = [header.substr(0,40), header.substr(40,12), header.substr(52,20), header.substr(72,12), header.substr(84,8)];
+	std::string headerArr[5];
+	headerArr[0] = header.substr(0, 40);
+	headerArr[1] = header.substr(40, 12);
+	headerArr[2] = header.substr(52, 20);
+	headerArr[3] = header.substr(72, 12);
+	headerArr[4] = header.substr(84, 8);
 	return headerArr;
 }
 
