@@ -14,9 +14,18 @@ make Server
 
 Run the server with
 
-./Server
+./Server 9000
 
 if using the command line, you need to use both of these options while compiling
 -lsqlite3
 
 --std=c++1
+
+
+To run the email server, libcurl must be installed on the virtual machine. You can use this command:  sudo apt-get install libcurl4-nss-dev
+
+
+When compiling EmailServer.cpp you must use the option -lcurl
+
+running the command make should generate all the objects and create an executable for the server
+
