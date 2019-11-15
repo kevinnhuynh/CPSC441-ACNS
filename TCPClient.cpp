@@ -7,6 +7,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <algorithm>
 #include <fstream>
 #include <sys/socket.h> // for socket(), connect(), send(), and recv()
 #include <arpa/inet.h>  // for sockaddr_in and inet_addr()
@@ -20,18 +21,26 @@ string header;
 string machineId;
 string commandSent;
 string userId;
+string password;
 string requestId;
 string timeStamp;
+
+//functions
 void getTimeStamp();
 void getCommand(char* outBuffer);
 void getMachineId();
 void headerSent (char* outBuffer);
+void login(int sock, char outBuffer[]);
+void handleResponse(string response);
 
+//used to be in main
+
+   
 const int BUFFERSIZE = 1024 * 10;   // Size the message buffers
 
 int main(int argc, char *argv[])
 {
-    int sock;                        // A socket descriptor
+	int sock;                        // A socket descriptor
     struct sockaddr_in serverAddr;   // Address of the server
     char inBuffer[BUFFERSIZE];       // Buffer for the message from the server
     int bytesRecv;                   // Number of bytes received
@@ -39,6 +48,8 @@ int main(int argc, char *argv[])
     char outBuffer[BUFFERSIZE];      // Buffer for message to the server
     int msgLength;                   // Length of the outgoing message
     int bytesSent;                   // Number of bytes sent
+
+
     
     // Check for input errors
     // login with -login <username> <password>
@@ -49,6 +60,7 @@ int main(int argc, char *argv[])
     }
 
     userId = argv[4];
+	password = argv[5];
 
     // Create a TCP socket
     // * AF_INET: using address family "Internet Protocol address"
@@ -89,8 +101,13 @@ int main(int argc, char *argv[])
         cout << "connect() failed" << endl;
         exit(1);
     }
-        
-
+        bytesSent = 0;
+		
+	 // Receive the greeting from the server and clear input buffer
+        bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
+		cout<<string(inBuffer);
+		memset(&inBuffer, 0, BUFFERSIZE);
+		login(sock, outBuffer);
     cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
     fgets(outBuffer, BUFFERSIZE, stdin);
     while (strncmp(outBuffer, "./logout", 8) != 0)
@@ -98,9 +115,14 @@ int main(int argc, char *argv[])
         msgLength = strlen(outBuffer) + 40 +12 +20 + 12 + 8;
         headerSent(outBuffer);
         header.append(outBuffer);
-        strcpy(outBuffer, header.c_str());
+		memset(&inBuffer, 0, BUFFERSIZE);
+
+		bytesRecv = 0;
+		bytesSent = 0;
         // Send the message to the server
-        bytesSent = send(sock, (char *) &outBuffer, msgLength, 0);
+        bytesSent += send(sock, (char *) &header[0]+bytesSent, msgLength-bytesSent, 0);
+		
+
         if (bytesSent < 0 || bytesSent != msgLength)
         {
             cout << "error in sending" << endl;
@@ -108,14 +130,20 @@ int main(int argc, char *argv[])
         }
         
         // Receive the response from the server
-        bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
+        		memset(&inBuffer, 0, BUFFERSIZE);
 
-        char *token = strtok(outBuffer, " ");
-        char *filename = strtok(NULL, "\n");
+		bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
+		
+		handleResponse(string(inBuffer));
+        		
+ 
+		//Not sure what these two lines were doing.
+        //char *token = strtok(outBuffer, " ");
+        //char *filename = strtok(NULL, "\n");
 
 
         // Check for connection close (0) or errors (< 0)
-        
+       
         if (strncmp(outBuffer, "terminate", 9) == 0)
         {
 
@@ -126,7 +154,12 @@ int main(int argc, char *argv[])
             cout << "recv() failed, or the connection is closed. " << endl;
             exit(1); 
         }
+		
 
+
+		
+		//is this code leftover from assignment 1 or is this part of the chat function
+/*
         else if ((strcmp(token, "get") == 0) && filename != NULL)
         {
             // cout << inBuffer;
@@ -157,6 +190,7 @@ int main(int argc, char *argv[])
         {
             cout << "Server: " << inBuffer;
         }
+		*/
         
         // Clear the buffers
         memset(&outBuffer, 0, BUFFERSIZE);
@@ -170,9 +204,57 @@ int main(int argc, char *argv[])
     exit(0);
 }
 
+void handleResponse(string response){
+	string command = response.substr(0,11);
+	if(command.compare(0 , 10, "friendlist", 0, 10)==0){
+		cout<<response.substr(40);
+	}
+	
+}
+
+void login(int sock, char outBuffer[]){
+	int sizeSent = 0;
+	int recvBytes = 0;
+    char loginBuffer[BUFFERSIZE];       // Buffer for the message from the server
+	memset(&loginBuffer, 0, BUFFERSIZE);
+	headerSent("login");
+	header.append(password);
+	int msgLength = header.length();
+	sizeSent += send(sock, (char *) &header[0]+sizeSent, msgLength-sizeSent, 0);
+	
+	recvBytes = recv(sock, (char *) &loginBuffer, sizeof(loginBuffer), 0);
+	string loginStatus = string(loginBuffer);
+	loginStatus = loginStatus.substr(40);
+	while(loginStatus.compare("success")!=0){
+		//request username and password until correct combination is entered
+		memset(&loginBuffer, 0, BUFFERSIZE);
+		cout<<"Incorrect password. Please enter your password separated by a space"<<endl;
+		fgets(loginBuffer, BUFFERSIZE, stdin);
+		headerSent("login");
+		string formatBuff= string(loginBuffer);
+		//remove the '\n' from the password
+		formatBuff.erase(remove(formatBuff.begin(),formatBuff.end(),'\n'),formatBuff.end());
+
+		header.append(formatBuff);
+		msgLength = header.length();
+		sizeSent = 0;
+		recvBytes = 0;
+		memset(&loginBuffer, 0, BUFFERSIZE);
+		sizeSent += send(sock, (char *) &header[0]+sizeSent, msgLength-sizeSent, 0);
+		recvBytes = recv(sock, (char *) &loginBuffer, sizeof(loginBuffer), 0);
+		loginStatus = string(loginBuffer);
+		loginStatus = loginStatus.substr(40);
+	}
+	if(loginStatus.compare("success")==0){
+		cout<<"You have successfully logged in"<<endl;
+		memset(&loginBuffer, 0, BUFFERSIZE);	
+
+	}
+}
+
 // get machine id
 void getMachineId(){
-    ifstream infile;
+    /*ifstream infile;
     infile.open("/etc/machine-id");
 
     // check for errors in opening the file
@@ -189,13 +271,19 @@ void getMachineId(){
     while (getline(infile, line))
     {
         machineId += line;
-    }
+    }*/ machineId="someMachineId";
     machineId.resize(40,' ');
 }
 
 // get command and the requestid
 void getCommand(char* outBuffer) {
-    string str(outBuffer);
+//what does this line even do   
+   string str(outBuffer);
+   
+	if (strncmp(outBuffer, "login", 5 ) == 0){
+		commandSent = "login";
+		requestId = "0000";
+	}
     if (strncmp(outBuffer, "./addfriend", 11) == 0)
     {
         commandSent = "addfriend";
@@ -204,7 +292,8 @@ void getCommand(char* outBuffer) {
     if (strncmp(outBuffer, "./friendlist", 12) == 0)
     {
         commandSent = "friendlist";
-        requestId = str.substr(str.find(" ") + 1);
+        requestId = "0001";
+		//requestId = str.substr(str.find(" ") + 1);
     }
     if (strncmp(outBuffer, "./deletefriend", 14) == 0)
     {
@@ -298,7 +387,7 @@ void getCommand(char* outBuffer) {
     }
     commandSent.resize(12,' ');
     requestId.resize(20,' ');
-    userId.resize(20, ' ');
+    userId.resize(12, ' ');		//THIS WAS 20, BUT IN DESIGN DOCUMENT WE SAID 12 SO CHANGED TO 12
 }
 
 // reference from https://stackoverflow.com/questions/16357999/current-date-and-time-as-string

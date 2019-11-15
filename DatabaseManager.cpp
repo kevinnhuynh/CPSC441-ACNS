@@ -133,6 +133,7 @@ void DatabaseManager::storeUser(User user){
 
 }
 
+//ASSUUME FIND USER
 User DatabaseManager::getUser(string user){
         User foundUser;
         string sql("SELECT * FROM USERS WHERE USERNAME ='"+user+"';");
