@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
         if (FD_ISSET(serverSock, &tempRecvSockSet))
         {
             // set the size of the client address structure
-             int size = sizeof(clientAddr);
+             socklen_t size = sizeof(clientAddr);
 			
             // Establish a connection
 			// Maybe change clientAddr -> serverAddr and size -> addrSize
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 			if (send(clientSock, message, strlen(message), 0) != strlen(message))
 				cout << "send() error" << endl;
 
-			puts("Sent greeting to client");
+			cout<<"Sent greeting to client";
 
             // Add the new connection to the receive socket set
             FD_SET(clientSock, &recvSockSet);
@@ -220,7 +220,7 @@ int initServer(int& serverSock, int port)
 
 	// Accepts the incoming connection
 	int addrSize = sizeof(serverAddr);
-	puts("Server initialization complete.\nWaiting on a connection...");
+	cout<<"Server initialization complete.\nWaiting on a connection..."<<endl;
 
 	return addrSize;
 }

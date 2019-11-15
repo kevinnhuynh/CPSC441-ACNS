@@ -44,7 +44,7 @@ EmailServer.o: EmailServer.cpp
 	g++ -c EmailServer.cpp
 
 Server.o: Server.cpp
-	g++  -c Server.cpp
+	g++ --std=c++11 -c Server.cpp
 
 clean:
 	rm *.o 
