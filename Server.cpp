@@ -6,6 +6,7 @@
 
 #include "Server.h"
 #include "DatabaseManager.h"
+#include "ChatManager.h"
 #include "User.h"
 #include<algorithm>
 #include <iostream>
@@ -43,6 +44,7 @@ void serverHeader(string request);
 void getTimeStamp();
 
 DatabaseManager dbMan;
+ChatManager chatMan;
 
 int main(int argc, char *argv[])
 {
@@ -254,8 +256,11 @@ void receiveData (int sock, char* inBuffer, int& size)
     // Receive the message from client
    // size = recv(sock, (char *) inBuffer, BUFFERSIZE, 0);
     // Check for connection close (0) or errors (< 0)
-	size += recv(sock, (char*)inBuffer, BUFFERSIZE, 0);
-	
+	size = 0;
+	do {
+		size = recv(sock, (char*)inBuffer, BUFFERSIZE, 0);
+	} while( size == BUFFERSIZE);
+
 				
 	 if (size <= 0)
     {
@@ -290,9 +295,10 @@ void sendData (int sock, char* buffer, int size)
 
 void handleRequest(int sock, string request){
 	serverHeader(request);
+	cout<<request<<endl;
+	string username = request.substr(72,12);
+	username.erase(remove(username.begin(),username.end(),' '),username.end());
 	if(request.compare( 40, 5, "login",0,5)==0){
-		string username = request.substr(72,12);
-		username.erase(remove(username.begin(),username.end(),' '),username.end());
 		string password = request.substr(92,(request.length()-92));
 		User newlyLoggedIn = dbMan.getUser(username);
 		if(password.compare(newlyLoggedIn.getPassword())==0){
@@ -301,15 +307,27 @@ void handleRequest(int sock, string request){
 		else{
 			header.append("failure");
 		}
-		sendData(sock, (char*)&header[0], header.length());
 
 	} else if (request.compare(40,10, "friendlist",0,10)==0){
-		string username = request.substr(72,12);
-		username.erase(remove(username.begin(),username.end(),' '),username.end());
 		string buff = dbMan.getFriendList(username);
 		header.append(buff);
-		sendData(sock, (char*)&header[0],header.length());
-	}	
+	} else if(request.compare(40, 8, "chatlist", 0, 8)==0) {
+		string buff = dbMan.getChatList(username);
+		cout<<buff<<endl;
+		header.append(buff);
+	} else if(request.compare(40, 4, "chat", 0, 4) == 0) {
+		string body = request.substr(92);
+		stringstream b (body);
+		string chatId;
+		string message;
+		getline(b, chatId);
+		getline(b, message);
+
+		string chat = chatMan.addMessage(chatId, username, message);
+	}
+	
+	sendData(sock, (char*)&header[0],header.length());
+
 }
 
 void serverHeader (string request){

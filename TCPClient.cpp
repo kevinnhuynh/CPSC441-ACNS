@@ -24,6 +24,7 @@ string userId;
 string password;
 string requestId;
 string timeStamp;
+string message ="";
 
 //functions
 void getTimeStamp();
@@ -112,10 +113,10 @@ int main(int argc, char *argv[])
     fgets(outBuffer, BUFFERSIZE, stdin);
     while (strncmp(outBuffer, "./logout", 8) != 0)
     {           
-        msgLength = strlen(outBuffer) + 40 +12 +20 + 12 + 8;
         headerSent(outBuffer);
-        header.append(outBuffer);
+        header.append(message);
 		memset(&inBuffer, 0, BUFFERSIZE);
+        msgLength = message.size() + 40 +12 +20 + 12 + 8;
 
 		bytesRecv = 0;
 		bytesSent = 0;
@@ -207,7 +208,12 @@ int main(int argc, char *argv[])
 void handleResponse(string response){
 	string command = response.substr(0,11);
 	if(command.compare(0 , 10, "friendlist", 0, 10)==0){
-		cout<<response.substr(40);
+		cout<<"Your friendlist is:"<<endl;
+		cout<<response.substr(40)<<endl;
+	}
+	else if(command.compare(0 , 8, "chatlist", 0, 8)==0){
+		cout<<"Your chat is:"<<endl;
+		cout<<response.substr(40)<<endl;
 	}
 	
 }
@@ -284,103 +290,114 @@ void getCommand(char* outBuffer) {
 		commandSent = "login";
 		requestId = "0000";
 	}
-    if (strncmp(outBuffer, "./addfriend", 11) == 0)
+    else if (strncmp(outBuffer, "./addfriend", 11) == 0)
     {
         commandSent = "addfriend";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./friendlist", 12) == 0)
+    else if (strncmp(outBuffer, "./friendlist", 12) == 0)
     {
         commandSent = "friendlist";
         requestId = "0001";
 		//requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./deletefriend", 14) == 0)
+    else if (strncmp(outBuffer, "./deletefriend", 14) == 0)
     {
         commandSent = "deletefriend";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./subscribe",11) == 0)
+    else if (strncmp(outBuffer, "./subscribe",11) == 0)
     {
         commandSent = "subscribe";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./unsubscribe", 13) == 0)
+    else if (strncmp(outBuffer, "./unsubscribe", 13) == 0)
     {
         commandSent = "unsubscribe";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./accept", 8) == 0)
+    else if (strncmp(outBuffer, "./accept", 8) == 0)
     {
         commandSent = "accept";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./chat", 6) == 0)
+	else if(strncmp(outBuffer, "./chatlist", 10) ==0) 
+	{
+		commandSent = "chatlist";
+		requestId = str.substr(str.find(" ")+1);
+		
+	}
+    else if (strncmp(outBuffer, "./chat", 6) == 0)
     {
         commandSent = "chat";
         requestId = str.substr(str.find(" ") + 1);
+		message.append(str.substr(7));
+		cout << "Please enter your message to be sent to: "<<str.substr(8)<<endl;
+        fgets(outBuffer, BUFFERSIZE, stdin);
+		message.append(string(outBuffer));
+		
     }
-    if (strncmp(outBuffer, "./group", 7) == 0)
+    else if (strncmp(outBuffer, "./group", 7) == 0)
     {
         commandSent = "group";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./group", 7) == 0)
+    else if (strncmp(outBuffer, "./group", 7) == 0)
     {
         commandSent = "group";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./invisible", 11) == 0)
+    else if (strncmp(outBuffer, "./invisible", 11) == 0)
     {
         commandSent = "invisible";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./busy", 6) == 0)
+    else if (strncmp(outBuffer, "./busy", 6) == 0)
     {
         commandSent = "busy";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./normal", 8) == 0)
+    else if (strncmp(outBuffer, "./normal", 8) == 0)
     {
         commandSent = "normal";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./tkgroup", 9) == 0)
+    else if (strncmp(outBuffer, "./tkgroup", 9) == 0)
     {
         commandSent = "tkgroup";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./leave", 7) == 0)
+    else if (strncmp(outBuffer, "./leave", 7) == 0)
     {
         commandSent = "leave";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./join", 6) == 0)
+    else if (strncmp(outBuffer, "./join", 6) == 0)
     {
         commandSent = "join";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./reconnect", 11) == 0)
+    else if (strncmp(outBuffer, "./reconnect", 11) == 0)
     {
         commandSent = "reconnect";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./send", 6) == 0)
+    else if (strncmp(outBuffer, "./send", 6) == 0)
     {
         commandSent = "send";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./download", 10) == 0)
+    else if (strncmp(outBuffer, "./download", 10) == 0)
     {
         commandSent = "send";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./send", 7) == 0)
+    else if (strncmp(outBuffer, "./send", 7) == 0)
     {
         commandSent = "send";
         requestId = str.substr(str.find(" ") + 1);
     }
-    if (strncmp(outBuffer, "./history", 7) == 0)
+    else if (strncmp(outBuffer, "./history", 7) == 0)
     {
         commandSent = "history";
         requestId = str.substr(str.find(" ") + 1);

@@ -16,19 +16,22 @@ string ChatManager::retrieveChat(string chatId, string access, string channelTyp
 }	
 	
 string ChatManager::addMessage(string chatId, string access, string message){
-			list<ChatHistory>::iterator it;		
-		
+	list<ChatHistory>::iterator it;		
 	for (it = privateChannels.begin();it !=privateChannels.end();++it){
 		if((*it).getFilename() == chatId){
+				cout<<"here"<<endl;
+
 			break;
 		}
 		
 	}	
 		string formattedmessage="";
 		formattedmessage+= (access+": "+message+"\n");
+		cout<<"formatted message: "<<formattedmessage<<endl;
 		string updatedChat = (*it).addMessageToChat(formattedmessage);
 		
 		return updatedChat;
+		return "pippip";
 	}
 	
 
@@ -43,7 +46,7 @@ string ChatManager::createChat(string access, string type){
 	
 }
 
-void ChatManager::addAccess(string chatId, string access){
+string ChatManager::addAccess(string chatId, string access){
 	list<ChatHistory>::iterator it;
 
 	for (it = privateChannels.begin();it !=privateChannels.end();++it){
@@ -52,8 +55,9 @@ void ChatManager::addAccess(string chatId, string access){
 		}
 		
 	}	
-	(*it).addAccess(access);
+	string newFilename = (*it).addAccess(access);
 	updateAccessInDB((*it).getFilename(),(*it).getAccessIDList());
+	return newFilename;
 }
 
 void ChatManager::saveChatHistoryCounter(){
@@ -75,6 +79,7 @@ void ChatManager::readChatHistoryCounter(){
 /****************************************************************/
 
 ChatManager::ChatManager(){
+	cout<<"huh"<<endl;
         actionStatus = 0;
         err_message = NULL;
         initializeTables();
@@ -98,8 +103,8 @@ void ChatManager::initializeTables(){
     }
 
     string sql = " CREATE TABLE IF NOT EXISTS CHATS("
-                        "FILENAME TEXT PRIMARY KEY      NOT NULL,"
-                        "CHANNELID       TEXT    NOT NULL,"
+                        "FILENAME TEXT       NOT NULL,"
+                        "CHANNELID       TEXT PRIMARY KEY   NOT NULL,"
                         "CHANNELTYPE          TEXT    NOT NULL,"
                         "ACCESSIDLIST     TEXT    );";
 

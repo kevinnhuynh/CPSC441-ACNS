@@ -7,6 +7,8 @@ using namespace std;
 
 FileInfo::FileInfo(string filename, string access){
 	this->filename = filename;
+		cout<<"filename: "<<this->filename<<endl;
+
 	accessIDList.push_front(access);
 	
 }
@@ -21,7 +23,6 @@ FileInfo::FileInfo(string filename, list<string> accessList){
 FileInfo::FileInfo(const FileInfo& src){
 	accessIDList=src.accessIDList;
 	filename = src.filename;
-
 
 }
 
@@ -64,8 +65,12 @@ bool FileInfo::checkAccess(string id){
 	
 }
 
-void FileInfo::addAccess(string access){
+string FileInfo::addAccess(string access){
 	accessIDList.push_front(access);
+	string oldFilename = filename;
+	filename.append(access);
+	rename(oldFilename.c_str(),filename.c_str());
+	return filename;
 	
 }
 
