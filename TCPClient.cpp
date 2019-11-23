@@ -215,7 +215,10 @@ void handleResponse(string response){
 		cout<<"Your chat is:"<<endl;
 		cout<<response.substr(40)<<endl;
 	}
-	
+	else if(command.compare(0, 4, "chat", 0, 4)==0) {
+		cout<<response.substr(40)<<endl;
+		message = "";
+	}
 }
 
 void login(int sock, char outBuffer[]){
@@ -332,7 +335,7 @@ void getCommand(char* outBuffer) {
         commandSent = "chat";
         requestId = str.substr(str.find(" ") + 1);
 		message.append(str.substr(7));
-		cout << "Please enter your message to be sent to: "<<str.substr(8)<<endl;
+		cout << "Please enter your message to be sent to: "<<str.substr(7)<<endl;
         fgets(outBuffer, BUFFERSIZE, stdin);
 		message.append(string(outBuffer));
 		

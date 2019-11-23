@@ -7,8 +7,6 @@ using namespace std;
 
 FileInfo::FileInfo(string filename, string access){
 	this->filename = filename;
-		cout<<"filename: "<<this->filename<<endl;
-
 	accessIDList.push_front(access);
 	
 }

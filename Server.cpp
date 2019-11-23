@@ -322,8 +322,8 @@ void handleRequest(int sock, string request){
 		string message;
 		getline(b, chatId);
 		getline(b, message);
-
 		string chat = chatMan.addMessage(chatId, username, message);
+		header.append(chat);
 	}
 	
 	sendData(sock, (char*)&header[0],header.length());

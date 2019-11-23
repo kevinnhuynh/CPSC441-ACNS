@@ -19,7 +19,6 @@ string ChatManager::addMessage(string chatId, string access, string message){
 	list<ChatHistory>::iterator it;		
 	for (it = privateChannels.begin();it !=privateChannels.end();++it){
 		if((*it).getFilename() == chatId){
-				cout<<"here"<<endl;
 
 			break;
 		}
@@ -27,7 +26,6 @@ string ChatManager::addMessage(string chatId, string access, string message){
 	}	
 		string formattedmessage="";
 		formattedmessage+= (access+": "+message+"\n");
-		cout<<"formatted message: "<<formattedmessage<<endl;
 		string updatedChat = (*it).addMessageToChat(formattedmessage);
 		
 		return updatedChat;
@@ -56,7 +54,8 @@ string ChatManager::addAccess(string chatId, string access){
 		
 	}	
 	string newFilename = (*it).addAccess(access);
-	updateAccessInDB((*it).getFilename(),(*it).getAccessIDList());
+	updateAccessInDB((*it).getChannelID(),(*it).getAccessIDList());
+	updateFilenameInDB((*it).getChannelID(), (*it).getFilename());
 	return newFilename;
 }
 
@@ -79,7 +78,6 @@ void ChatManager::readChatHistoryCounter(){
 /****************************************************************/
 
 ChatManager::ChatManager(){
-	cout<<"huh"<<endl;
         actionStatus = 0;
         err_message = NULL;
         initializeTables();
@@ -134,9 +132,7 @@ void ChatManager:: createChannelListFromDB(){
         //cout<<actionStatus<<endl;
         //cout<<"SQL error: "<<err_message<<endl;
         privateChannels = temp;
-	
-	
-	
+		
 	
 }
 
@@ -144,18 +140,23 @@ void ChatManager::storeChat(ChatHistory chat){
 
         string sql("INSERT INTO CHATS ('FILENAME', 'CHANNELID','CHANNELTYPE', 'ACCESSIDLIST') VALUES('"+chat.getFilename()+"', '"+string(chat.getChannelID())+"', '"+chat.getChannelType()+"', '"+ChatManager::convertStringListToString(chat.getAccessIDList())+"');");
         actionStatus = sqlite3_exec(DB, sql.c_str(), NULL, 0, &err_message);
-		cout<<sql<<endl;
+		//cout<<sql<<endl;
 //cout<<"SQL error: "<< err_message<<endl;
 
 }
 
-void ChatManager::updateAccessInDB(string filename, list<string> access){
+void ChatManager::updateAccessInDB(string channelID, list<string> access){
 	
-	string sql = "UPDATE CHATS set ACCESSIDLIST = '"+ChatManager::convertStringListToString(access)+"' where FILENAME='"+filename+"';";
+	string sql = "UPDATE CHATS set ACCESSIDLIST = '"+ChatManager::convertStringListToString(access)+"' where CHANNELID='"+channelID+"';";
     actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
 
+		
+}
+
+void ChatManager::updateFilenameInDB(string channelID, string newFilename){
 	
-	
+	string sql = "UPDATE CHATS set FILENAME = '"+newFilename+"' where CHANNELID='"+channelID+"';";
+    actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
 }
 
 

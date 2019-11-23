@@ -41,6 +41,10 @@ class ChatManager{
 		*adds a username to a file's access list, also updates ChatHistory object in database
 		*/
 		string addAccess(string chatId, string access);
+		
+		/*
+		*updates the filename in the database*/
+		void updateFilenameInDB(string channelID, string newFilename);
 		ChatManager();
 		~ChatManager();
 		/*
