@@ -19,13 +19,13 @@
 #include <string.h>     // for memset()
 #include <unistd.h>     // for close()
 
+#define MAXSOCKETS 50
 
 using namespace std;
 
 const int BUFFERSIZE = 1024;		// Size the message buffers
 const int MAXPENDING = 10;		// Maximum pending connections
 const int MAXCLIENTS = 20;		// Maximum capacity of clients on the server at the same time
-
 fd_set recvSockSet;			// The set of descriptors for incoming connections
 int maxDesc = 0;			// The max descriptor
 bool terminated = false;    
@@ -38,7 +38,7 @@ string timeStamp;
 
 
 //login user array
-string onlineUser[50];
+string onlineUser[MAXSOCKETS];
 
 int  initServer(int&, int port);
 void processSockets(fd_set);
@@ -314,9 +314,9 @@ void handleRequest(int sock, string request){
 	serverHeader(request);
 	string username = request.substr(72,12);
 	username.erase(remove(username.begin(),username.end(),' '),username.end());
+
+	username.erase(remove(username.begin(),username.end(),' '),username.end());
 	if(request.compare( 40, 5, "login",0,5)==0){
-		string username = request.substr(72,12);
-		username.erase(remove(username.begin(),username.end(),' '),username.end());
 
 		string password = request.substr(92,(request.length()-92));
 		User newlyLoggedIn = dbMan.getUser(username);
@@ -328,9 +328,7 @@ void handleRequest(int sock, string request){
 		else{
 			header.append("failure");
 		}
-<<<<<<< HEAD
-
-	} 
+	 
 	} else if(request.compare(40, 8, "chatlist", 0, 8)==0) {
 		string buff = dbMan.getChatList(username);
 		cout<<buff<<endl;
@@ -343,13 +341,22 @@ void handleRequest(int sock, string request){
 		getline(b, chatId);
 		getline(b, message);
 		string chat = chatMan.addMessage(chatId, username, message);
-		header.append(chat);
+		string secondParticipant = chatId.replace(chatId.find(username),username.size(),"");
+		string tempHeader = header.append(chat);
+		//send to second user only if friend is online
+		for(int i =0; i<MAXSOCKETS;i++) {
+			cout<<onlineUser[i].compare(secondParticipant);
+			if(onlineUser[i].compare(secondParticipant)==0){
+				sendData(i, (char*)&header[0],header.length());
+			}
+		}
+		//send to original user who sent message
+		header = tempHeader;
+				
 	}else if (request.compare(40,10, "friendlist",0,10)==0){
-		string username = request.substr(72,12);
         string onlineFriend = "";
         string offlineFriend = "";
         string temp = "";
-		username.erase(remove(username.begin(),username.end(),' '),username.end());
 		string friendList = dbMan.getFriendList(username);
         while (friendList != "") {
             temp = friendList.substr(0, friendList.find('\n'));

@@ -14,7 +14,11 @@
 #include <stdlib.h>     // for atoi() and exit()
 #include <string.h>     // for memset()
 #include <unistd.h>     // for close()
+#include <fcntl.h>
 #include <string>
+#include <thread>
+#include <chrono>
+#include <mutex>
 
 using namespace std;
 string header;
@@ -25,6 +29,7 @@ string password;
 string requestId;
 string timeStamp;
 string message ="";
+mutex chatMutex;
 
 //functions
 void getTimeStamp();
@@ -33,12 +38,26 @@ void getMachineId();
 void headerSent (char* outBuffer);
 void login(int sock, char outBuffer[]);
 void handleResponse(string response);
+void readInput(void);
+bool newInputFromUser = false;
+bool chatmessage = false;
+bool getChatMessageBool(void);
+string holdBuffer;
+
+bool getChatMessageBool(){
+	bool temp;
+	chatMutex.lock();
+		temp = chatmessage;
+	chatMutex.unlock();
+	return temp;
+}
 
 //used to be in main
 
    
 const int BUFFERSIZE = 1024 * 10;   // Size the message buffers
-
+char outBuffer[BUFFERSIZE];      // Buffer for message to the server
+char threadBuffer[BUFFERSIZE];
 int main(int argc, char *argv[])
 {
 	int sock;                        // A socket descriptor
@@ -46,7 +65,6 @@ int main(int argc, char *argv[])
     char inBuffer[BUFFERSIZE];       // Buffer for the message from the server
     int bytesRecv;                   // Number of bytes received
     
-    char outBuffer[BUFFERSIZE];      // Buffer for message to the server
     int msgLength;                   // Length of the outgoing message
     int bytesSent;                   // Number of bytes sent
 
@@ -85,7 +103,7 @@ int main(int argc, char *argv[])
         cout << "setsockopt() failed" << endl;
         exit(1);
     }
-    
+
     // Initialize the server information
     // Note that we can't choose a port less than 1023 if we are not privileged users (root)
     memset(&serverAddr, 0, sizeof(serverAddr));         // Zero out the structure
@@ -109,100 +127,87 @@ int main(int argc, char *argv[])
 		cout<<string(inBuffer);
 		memset(&inBuffer, 0, BUFFERSIZE);
 		login(sock, outBuffer);
-    cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
-    fgets(outBuffer, BUFFERSIZE, stdin);
-    while (strncmp(outBuffer, "./logout", 8) != 0)
-    {           
-        headerSent(outBuffer);
-        header.append(message);
-		memset(&inBuffer, 0, BUFFERSIZE);
-        msgLength = message.size() + 40 +12 +20 + 12 + 8;
+    //cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
+    //fgets(outBuffer, BUFFERSIZE, stdin);
 
-		bytesRecv = 0;
-		bytesSent = 0;
-        // Send the message to the server
-        bytesSent += send(sock, (char *) &header[0]+bytesSent, msgLength-bytesSent, 0);
-		
+	thread myInput(readInput);
+	
+      fcntl(sock, F_SETFL, O_NONBLOCK);  
 
-        if (bytesSent < 0 || bytesSent != msgLength)
-        {
-            cout << "error in sending" << endl;
-            exit(1); 
-        }
-        
-        // Receive the response from the server
-        		memset(&inBuffer, 0, BUFFERSIZE);
+    while (1)//(strncmp(outBuffer, "./logout", 8) != 0)
+	{
+		if(newInputFromUser) {
+			headerSent(outBuffer);
+			header.append(message);
+			memset(&inBuffer, 0, BUFFERSIZE);
+			msgLength = message.size() + 40 +12 +20 + 12 + 8;
 
-		bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
-		
-		handleResponse(string(inBuffer));
-        		
- 
-		//Not sure what these two lines were doing.
-        //char *token = strtok(outBuffer, " ");
-        //char *filename = strtok(NULL, "\n");
+			bytesRecv = 0;
+			bytesSent = 0;
+			// Send the message to the server
+			bytesSent += send(sock, (char *) &header[0]+bytesSent, msgLength-bytesSent, 0);
+			
 
+			if (bytesSent < 0 || bytesSent != msgLength)
+			{
+				cout << "error in sending" << endl;
+				exit(1); 
+			}
+			
+			// Receive the response from the server
+					memset(&inBuffer, 0, BUFFERSIZE);
+			do {
+			bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
+			} while(bytesRecv<0);
+			handleResponse(string(inBuffer));
+					
+	 
+			if (strncmp(outBuffer, "terminate", 9) == 0)
+			{
 
-        // Check for connection close (0) or errors (< 0)
-       
-        if (strncmp(outBuffer, "terminate", 9) == 0)
-        {
+			}
 
-        }
-
-        else if (bytesRecv <= 0)
-        {
-            cout << "recv() failed, or the connection is closed. " << endl;
-            exit(1); 
-        }
-		
-
-
-		
-		//is this code leftover from assignment 1 or is this part of the chat function
-/*
-        else if ((strcmp(token, "get") == 0) && filename != NULL)
-        {
-            // cout << inBuffer;
-            // cout << strcmp(inBuffer,"open() failed\n\n");
-            if (strcmp(inBuffer,"open() failed\n\n") == 0)
-            {
-                cout << "open() failed \n";
-            }
-            
-            else 
-            {
-            std::ofstream outfile (filename);
-
-            outfile << inBuffer << std::endl;
-
-            outfile.close();; 
-
-            cout << "File saved in " << filename << endl;
-            }
-        }
-        else if (strcmp(outBuffer,"list\n") == 0)
-        {
-            string in = string(inBuffer);
-            cout << in;
-        }
-
-        else
-        {
-            cout << "Server: " << inBuffer;
-        }
-		*/
-        
-        // Clear the buffers
+			else if (bytesRecv <= 0)
+			{
+				cout << "recv() failed, or the connection is closed. " << endl;
+				exit(1); 
+			}
+			
+		newInputFromUser = false;
+		        // Clear the buffers
         memset(&outBuffer, 0, BUFFERSIZE);
         memset(&inBuffer, 0, BUFFERSIZE);
-        cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
-        fgets(outBuffer, BUFFERSIZE, stdin);
+		}
+
+		bytesRecv = recv(sock, (char *) &inBuffer, sizeof(inBuffer), 0);
+		if(bytesRecv>0) {
+			handleResponse(string(inBuffer));
+
+		}
+		
     }
 
     // Close the socket
     close(sock);
     exit(0);
+}
+
+void readInput(void){
+	while (true) {
+		if(getChatMessageBool()){
+			string str(outBuffer);
+			cout << "Please enter your message to be sent to: "<<holdBuffer.substr(7);
+			chatMutex.lock();
+			chatmessage = false;
+			chatMutex.unlock();
+		} else{
+			cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
+		}	
+		fgets(outBuffer, BUFFERSIZE, stdin);
+		newInputFromUser = true;
+		this_thread::sleep_for(chrono::seconds(1));
+	}
+	
 }
 
 void handleResponse(string response){
@@ -331,13 +336,18 @@ void getCommand(char* outBuffer) {
 		
 	}
     else if (strncmp(outBuffer, "./chat", 6) == 0)
-    {
+    {	chatMutex.lock();
+		chatmessage = true;
+		holdBuffer = str;
+		chatMutex.unlock();
         commandSent = "chat";
         requestId = str.substr(str.find(" ") + 1);
 		message.append(str.substr(7));
-		cout << "Please enter your message to be sent to: "<<str.substr(7)<<endl;
-        fgets(outBuffer, BUFFERSIZE, stdin);
+       		//wait for chat information and message
+		if(newInputFromUser) newInputFromUser = false;
+		while(!newInputFromUser) ;
 		message.append(string(outBuffer));
+		newInputFromUser = false;
 		
     }
     else if (strncmp(outBuffer, "./group", 7) == 0)
