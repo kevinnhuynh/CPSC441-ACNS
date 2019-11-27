@@ -6,6 +6,7 @@
 
 #include "Server.h"
 #include "DatabaseManager.h"
+
 #include "ChatManager.h"
 #include "User.h"
 #include<algorithm>
@@ -35,6 +36,10 @@ string commandSent;
 string requestId;
 string timeStamp;
 
+
+//login user array
+string onlineUser[50];
+
 int  initServer(int&, int port);
 void processSockets(fd_set);
 void sendData(int, char[], int);
@@ -44,7 +49,9 @@ void serverHeader(string request);
 void getTimeStamp();
 
 DatabaseManager dbMan;
+
 ChatManager chatMan;
+
 
 int main(int argc, char *argv[])
 {
@@ -127,7 +134,11 @@ int main(int argc, char *argv[])
         if (FD_ISSET(serverSock, &tempRecvSockSet))
         {
             // set the size of the client address structure
-             int size = sizeof(clientAddr);
+
+            // int size = sizeof(clientAddr);
+
+             socklen_t size = sizeof(clientAddr);
+
 			
             // Establish a connection
 			// Maybe change clientAddr -> serverAddr and size -> addrSize
@@ -141,7 +152,8 @@ int main(int argc, char *argv[])
 			if (send(clientSock, message, strlen(message), 0) != strlen(message))
 				cout << "send() error" << endl;
 
-			puts("Sent greeting to client");
+			cout<<"Sent greeting to client";
+
 
             // Add the new connection to the receive socket set
             FD_SET(clientSock, &recvSockSet);
@@ -222,7 +234,9 @@ int initServer(int& serverSock, int port)
 
 	// Accepts the incoming connection
 	int addrSize = sizeof(serverAddr);
-	puts("Server initialization complete.\nWaiting on a connection...");
+
+	cout<<"Server initialization complete.\nWaiting on a connection..."<<endl;
+
 
 	return addrSize;
 }
@@ -256,10 +270,13 @@ void receiveData (int sock, char* inBuffer, int& size)
     // Receive the message from client
    // size = recv(sock, (char *) inBuffer, BUFFERSIZE, 0);
     // Check for connection close (0) or errors (< 0)
+
 	size = 0;
 	do {
 		size = recv(sock, (char*)inBuffer, BUFFERSIZE, 0);
 	} while( size == BUFFERSIZE);
+
+
 
 				
 	 if (size <= 0)
@@ -295,22 +312,25 @@ void sendData (int sock, char* buffer, int size)
 
 void handleRequest(int sock, string request){
 	serverHeader(request);
-	cout<<request<<endl;
 	string username = request.substr(72,12);
 	username.erase(remove(username.begin(),username.end(),' '),username.end());
 	if(request.compare( 40, 5, "login",0,5)==0){
+		string username = request.substr(72,12);
+		username.erase(remove(username.begin(),username.end(),' '),username.end());
+
 		string password = request.substr(92,(request.length()-92));
 		User newlyLoggedIn = dbMan.getUser(username);
 		if(password.compare(newlyLoggedIn.getPassword())==0){
 			header.append( "success");
+            onlineUser[sock] = username;
+
 		}
 		else{
 			header.append("failure");
 		}
+<<<<<<< HEAD
 
-	} else if (request.compare(40,10, "friendlist",0,10)==0){
-		string buff = dbMan.getFriendList(username);
-		header.append(buff);
+	} 
 	} else if(request.compare(40, 8, "chatlist", 0, 8)==0) {
 		string buff = dbMan.getChatList(username);
 		cout<<buff<<endl;
@@ -324,10 +344,36 @@ void handleRequest(int sock, string request){
 		getline(b, message);
 		string chat = chatMan.addMessage(chatId, username, message);
 		header.append(chat);
+	}else if (request.compare(40,10, "friendlist",0,10)==0){
+		string username = request.substr(72,12);
+        string onlineFriend = "";
+        string offlineFriend = "";
+        string temp = "";
+		username.erase(remove(username.begin(),username.end(),' '),username.end());
+		string friendList = dbMan.getFriendList(username);
+        while (friendList != "") {
+            temp = friendList.substr(0, friendList.find('\n'));
+            for (int i = 0; i < (sizeof(onlineUser)/sizeof(onlineUser[0])); i++ ) {
+                if (temp == onlineUser[i]){
+                    temp.append("\n");
+                    onlineFriend.append(temp);
+                    temp = "\n";
+                }
+            }
+            if (temp == "\n") {
+                temp = "";
+            }
+            offlineFriend.append(temp + "\n");
+            friendList = friendList.substr(friendList.find("\n") + 1);
+        }
+        string buff = "Online Friends:\n";
+        buff.append(onlineFriend);
+        buff.append("Offline Friend: \n");
+        buff.append(offlineFriend);
+		header.append(buff);
 	}
 	
 	sendData(sock, (char*)&header[0],header.length());
-
 }
 
 void serverHeader (string request){
