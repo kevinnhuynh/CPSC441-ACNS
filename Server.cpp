@@ -415,6 +415,22 @@ void handleRequest(int sock, string request){
         buff.append(offlineFriend);
 		header.append(buff);
 	}
+	else if (request.compare(40, 9, "addfriend", 0, 9) == 0) {
+		string username = request.substr(72, 12);
+		username.erase(remove(username.begin(), username.end(), ' '), username.end());
+		string userTarget = request.substr(52, 20);
+		userTarget.erase(remove(userTarget.begin(), userTarget.end(), ' '), userTarget.end());
+		dbMan.addFriend(username, userTarget);
+		header.append(userTarget);
+	}
+	else if (request.compare(40, 12, "deletefriend", 0, 12) == 0) {
+		string username = request.substr(72, 12);
+		username.erase(remove(username.begin(), username.end(), ' '), username.end());
+		string userTarget = request.substr(52, 20);
+		userTarget.erase(remove(userTarget.begin(), userTarget.end(), ' '), userTarget.end());
+		dbMan.removeFriend(username, userTarget);
+		header.append(userTarget);
+	}
 	sendData(sock, (char*)&header[0],header.length());
 }
 
