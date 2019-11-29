@@ -25,6 +25,7 @@ string ChatManager::addMessage(string chatId, string access, string message, str
 		
 	}	
 		string formattedmessage=timestamp;
+		formattedmessage+=" ";
 		formattedmessage+= (access+": "+message+"\n");
 		string updatedChat = (*it).addMessageToChat(formattedmessage);
 		

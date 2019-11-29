@@ -270,7 +270,7 @@ void login(int sock, char outBuffer[]){
 
 // get machine id
 void getMachineId(){
-    /*ifstream infile;
+    ifstream infile;
     infile.open("/etc/machine-id");
 
     // check for errors in opening the file
@@ -287,7 +287,7 @@ void getMachineId(){
     while (getline(infile, line))
     {
         machineId += line;
-    }*/ machineId="someMachineId";
+    } machineId="someMachineId";
     machineId.resize(40,' ');
 }
 
