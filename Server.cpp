@@ -320,7 +320,6 @@ void handleRequest(int sock, string request){
 	string username = request.substr(72,12);
 	username.erase(remove(username.begin(),username.end(),' '),username.end());
 
-	username.erase(remove(username.begin(),username.end(),' '),username.end());
 	if(request.compare( 40, 5, "login",0,5)==0){
 
 		string password = request.substr(92,(request.length()-92));
@@ -420,6 +419,7 @@ void handleRequest(int sock, string request){
 		username.erase(remove(username.begin(), username.end(), ' '), username.end());
 		string userTarget = request.substr(52, 20);
 		userTarget.erase(remove(userTarget.begin(), userTarget.end(), ' '), userTarget.end());
+		userTarget.erase(remove(userTarget.begin(), userTarget.end(), '\n'), userTarget.end());
 		dbMan.addFriend(username, userTarget);
 		header.append(userTarget);
 	}
@@ -428,6 +428,7 @@ void handleRequest(int sock, string request){
 		username.erase(remove(username.begin(), username.end(), ' '), username.end());
 		string userTarget = request.substr(52, 20);
 		userTarget.erase(remove(userTarget.begin(), userTarget.end(), ' '), userTarget.end());
+		userTarget.erase(remove(userTarget.begin(), userTarget.end(), '\n'), userTarget.end());
 		dbMan.removeFriend(username, userTarget);
 		header.append(userTarget);
 	}

@@ -203,7 +203,6 @@ void readInput(void){
 			cout << "Please enter a command or./logout to terminate): "<<endl;
 		}	
 		fgets(outBuffer, BUFFERSIZE, stdin);
-		cout<<outBuffer<<endl;
 		if(string(outBuffer).compare(0,8,"./logout")==0) loggedIn = false;
 		newInputFromUser = true;
 		this_thread::sleep_for(chrono::milliseconds(500));
