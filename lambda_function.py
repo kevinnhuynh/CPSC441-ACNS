@@ -1,5 +1,3 @@
-#Amazon Web Service Lambda function for sending emails after recieving a post request,adapted from an AWS template for http dynamoDB access
-
 import boto3
 import json
 
@@ -7,7 +5,7 @@ import json
 import smtplib
 print('Loading function')
 dynamo = boto3.client('dynamodb')
-
+returnValue = 'something'
 
 def respond(err, res=None):
     return {
@@ -32,20 +30,19 @@ def lambda_handler(event, context):
     #print("Received event: " + json.dumps(event, indent=2))
 
     operations = {
-        'POST': sendMail(event['body']),
+        'POST': sendMail(event['body'])
     }
 
     operation = event['httpMethod']
     if operation in operations:
-        print (event)
-       # email = getEmailAddress(event[body])
-        #message = getMessage(event[body])
         operations[operation]
+        return respond(None, returnValue)
        
 
 
 
 def sendMail(body):
+    global returnValue
     data = json.loads(body)
     gmail_user = 'khbjh179@gmail.com'
     gmail_password = '_cpsc441'
@@ -54,7 +51,6 @@ def sendMail(body):
     to = data.get('emailAddress')
     subject = 'Notification'
     body = data.get('message')
-    
     email_text = ("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s" %(sent_from, to, subject, body))
     
     
@@ -64,10 +60,11 @@ def sendMail(body):
         #server = smtplib.SMTP('smtp.gmail.com', 587)
         #server.starttls()
         server.login(gmail_user, gmail_password)
-        server.sendmail(sent_from, to, email_text)
+        returnValue = server.sendmail(sent_from, to, email_text)
         #server.sendmail(sent_from, to, message)
         #server.quit()
         server.close()
         print ('Email sent!')
+        print (returnValue)
     except:
         print ('Something went wrong...')
