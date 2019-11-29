@@ -225,10 +225,10 @@ void handleResponse(string response){
 		message = "";
 	}
 	else if (command.compare(0, 9, "addfriend", 0, 9) == 0) {
-		cout << "Invitation email sent.\nA user has accepted your friend request, you are now friends with: " << response.substr(40);
+		cout << "Invitation email sent.\nA user has accepted your friend request, you are now friends with: " << response.substr(40) << endl;
 	}
 	else if (command.compare(0, 12, "deletefriend", 0, 12) == 0) {
-		cout << "The following user is now deleted from your friend list: " << response.substr(40);
+		cout << "The following user is now deleted from your friend list: " << response.substr(40) << endl;
 	}
 }
 

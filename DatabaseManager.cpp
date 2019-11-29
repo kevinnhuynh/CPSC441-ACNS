@@ -4,6 +4,7 @@
 
 
 #include "DatabaseManager.h"
+#include "ChatManager.h"
 
 using namespace std;
 
@@ -177,6 +178,21 @@ string DatabaseManager::addFriend(string username, string friendUsername){
         //return updated list to requesting friend
 		return temp.convertStringListToString(friends);
 
+		//Adds chat name to the chatlist
+		if ((checkChatId(username, friendUsername)) || (checkChatId(friendUsername, username))) {
+			string chatId = chatMan.createChat(username, "private");
+			string newChatId = chatMan.addAccess(chatId, friendUsername);
+			addChatId(username, newChatId);
+			addChatId(friendUsername, newChatId);
+		}
+}
+
+bool DatabaseManager::checkChatId(string username, string friendUsername) {
+	ChatManager chatMan;
+	string fChatId = username + friendUsername;
+	User temp = getUser(friendUsername);
+	list<string> friends = getChatList();
+	std::find(friends.begin(), friends.end(), fChat)
 }
 
 string DatabaseManager::addChatId(string username, string chatId){

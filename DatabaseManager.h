@@ -45,6 +45,11 @@ class DatabaseManager{
 		*removes a friend's username from a user's friend list and returns the updated friend list as a string
 		*/
         string removeFriend(string username, string friendUsername);
+
+		/*
+		 *  Checks if chat ID
+		 */
+		bool checkChatId(string username, string friendUsername);
 		 
 		 /*
 		*adds a cht to a users chatlist and returns the updatedchat list as a string
