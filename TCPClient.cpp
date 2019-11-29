@@ -212,7 +212,7 @@ void readInput(void){
 }
 
 void handleResponse(string response){
-	string command = response.substr(0,11);
+	string command = response.substr(0,13);
 	if(command.compare(0 , 10, "friendlist", 0, 10)==0){
 		cout<<"Your friendlist is:"<<endl;
 		cout<<response.substr(40)<<endl;
