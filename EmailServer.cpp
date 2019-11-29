@@ -34,19 +34,16 @@ curl_easy_setopt(curl, CURLOPT_HTTPHEADER, hs);
     /* First set the URL that is about to receive our POST. This URL can
        just as well be a https:// URL if that is what should receive the
        data. */
-	//data = (formatEmailBody(address, content)).c_str();
-	printf("%s",data); 
+
 	string s = formatEmailBody(address,content);
-	cout<<s<<endl;
-	cout<<s.size()<<endl;
 	data = s.c_str();
-	cout<<data<<endl;
+
 	struct curl_slist *headers = NULL;
     curl_slist_append(headers, "Accept: application/json");
     curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
     curl_slist_append(headers, "charsets: utf-8");
 
-	         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+	curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
 	curl_easy_setopt(curl, CURLOPT_URL, "https:/\/ja16y5um79.execute-api.us-east-2.amazonaws.com/default/EmailPython");
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
@@ -72,8 +69,9 @@ curl_easy_setopt(curl, CURLOPT_HTTPHEADER, hs);
   curl_global_cleanup();
 	
 }
-
+#if 0
 int main(){
 	EmailServer myServer;
 	myServer.sendEmail("khbjh179@gmail.com","WHHHHAAATTTT");
 }
+#endif

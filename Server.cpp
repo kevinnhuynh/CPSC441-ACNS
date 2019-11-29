@@ -6,6 +6,7 @@
 
 #include "Server.h"
 #include "DatabaseManager.h"
+#include "EmailServer.h"
 
 #include "ChatManager.h"
 #include "User.h"
@@ -46,11 +47,13 @@ void sendData(int, char[], int);
 void receiveData(int, char[], int&);
 void handleRequest(int sock, string request);
 void serverHeader(string request);
-void getTimeStamp();
+string getTimeStamp();
 
 DatabaseManager dbMan;
 
 ChatManager chatMan;
+
+EmailServer email;
 
 
 int main(int argc, char *argv[])
@@ -283,6 +286,8 @@ void receiveData (int sock, char* inBuffer, int& size)
     {
         cout << "recv() failed, or the connection is closed. " << endl;
         FD_CLR(sock, &recvSockSet);
+		//remove user from list of online users
+		onlineUser[sock] = "";
         
         // Update the max descriptor
         while (FD_ISSET(maxDesc, &recvSockSet) == false)
@@ -323,7 +328,38 @@ void handleRequest(int sock, string request){
 		if(password.compare(newlyLoggedIn.getPassword())==0){
 			header.append( "success");
             onlineUser[sock] = username;
-
+			string message = "A new log in from device ";
+			message.append(request.substr(0,40));
+			message.append(" has been detected. If this is not you, please check your account information");
+			email.sendEmail(newlyLoggedIn.getEmail(),message);
+			
+			//return friendlist
+			string onlineFriend = "";
+			string offlineFriend = "";
+			string temp = "";
+			string friendList = dbMan.getFriendList(username);
+			while (friendList != "") {
+				temp = friendList.substr(0, friendList.find('\n'));
+				for (int i = 0; i < (sizeof(onlineUser)/sizeof(onlineUser[0])); i++ ) {
+					if (temp == onlineUser[i]){
+						temp.append("\n");
+						onlineFriend.append(temp);
+						temp = "\n";
+					}
+				}
+				if (temp == "\n") {
+					temp = "";
+				}
+				offlineFriend.append(temp + "\n");
+				friendList = friendList.substr(friendList.find("\n") + 1);
+			}
+			string buff = "Online Friends:\n";
+			buff.append(onlineFriend);
+			buff.append("Offline Friend: \n");
+			buff.append(offlineFriend);
+			header.append(buff);
+			
+			
 		}
 		else{
 			header.append("failure");
@@ -340,7 +376,7 @@ void handleRequest(int sock, string request){
 		string message;
 		getline(b, chatId);
 		getline(b, message);
-		string chat = chatMan.addMessage(chatId, username, message);
+		string chat = chatMan.addMessage(chatId, username, message, getTimeStamp());
 		string secondParticipant = chatId.replace(chatId.find(username),username.size(),"");
 		string tempHeader = header.append(chat);
 		//send to second user only if friend is online
@@ -379,7 +415,6 @@ void handleRequest(int sock, string request){
         buff.append(offlineFriend);
 		header.append(buff);
 	}
-	
 	sendData(sock, (char*)&header[0],header.length());
 }
 
@@ -390,17 +425,21 @@ void serverHeader (string request){
     header = commandSent + requestId +timeStamp;
 }
 
-void getTimeStamp() {
+string getTimeStamp() {
     time_t rawtime;
     struct tm * timeinfo;
     char buffer[80];
 
     time (&rawtime);
     timeinfo = localtime(&rawtime);
-
-    strftime(buffer,sizeof(buffer),"%m%d%H%M",timeinfo);
+	
+	strftime(buffer,sizeof(buffer),"%m%d%H%M",timeinfo);
+    std::string time(buffer);
+	timeStamp = time;
+	memset(&buffer, 0, 80);	
+    strftime(buffer,sizeof(buffer),"%B %d : %H%M ",timeinfo);
     std::string str(buffer);
-
-    timeStamp = str;
+	return str;
 }
+
 

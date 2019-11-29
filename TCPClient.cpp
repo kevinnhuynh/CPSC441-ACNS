@@ -43,6 +43,7 @@ bool newInputFromUser = false;
 bool chatmessage = false;
 bool getChatMessageBool(void);
 string holdBuffer;
+bool loggedIn = true;
 
 bool getChatMessageBool(){
 	bool temp;
@@ -74,7 +75,7 @@ int main(int argc, char *argv[])
     // login with -login <username> <password>
     if (argc != 6)
     {
-        cout << "Usage: " << argv[0] << " <Server IP> <Server Port>" << endl;
+        cout << "Usage: " << argv[0] << " <Server IP> <Server Port> -login <username> <password>" << endl;
         exit(1);
     }
 
@@ -127,14 +128,12 @@ int main(int argc, char *argv[])
 		cout<<string(inBuffer);
 		memset(&inBuffer, 0, BUFFERSIZE);
 		login(sock, outBuffer);
-    //cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
-    //fgets(outBuffer, BUFFERSIZE, stdin);
 
 	thread myInput(readInput);
 	
       fcntl(sock, F_SETFL, O_NONBLOCK);  
 
-    while (1)//(strncmp(outBuffer, "./logout", 8) != 0)
+    while (loggedIn)
 	{
 		if(newInputFromUser) {
 			headerSent(outBuffer);
@@ -196,16 +195,18 @@ void readInput(void){
 	while (true) {
 		if(getChatMessageBool()){
 			string str(outBuffer);
-			cout << "Please enter your message to be sent to: "<<holdBuffer.substr(7);
+			cout << "Please enter your message to be sent to: "<<holdBuffer.substr(7)<<endl;
 			chatMutex.lock();
 			chatmessage = false;
 			chatMutex.unlock();
 		} else{
-			cout << "Please enter a message to be sent to the server ('logout' to terminate): ";
+			cout << "Please enter a command or./logout to terminate): "<<endl;
 		}	
 		fgets(outBuffer, BUFFERSIZE, stdin);
+		cout<<outBuffer<<endl;
+		if(string(outBuffer).compare(0,8,"./logout")==0) loggedIn = false;
 		newInputFromUser = true;
-		this_thread::sleep_for(chrono::seconds(1));
+		this_thread::sleep_for(chrono::milliseconds(500));
 	}
 	
 }
@@ -237,8 +238,8 @@ void login(int sock, char outBuffer[]){
 	sizeSent += send(sock, (char *) &header[0]+sizeSent, msgLength-sizeSent, 0);
 	
 	recvBytes = recv(sock, (char *) &loginBuffer, sizeof(loginBuffer), 0);
-	string loginStatus = string(loginBuffer);
-	loginStatus = loginStatus.substr(40);
+	string loginMessage = string(loginBuffer);
+	string loginStatus = loginMessage.substr(40,7);
 	while(loginStatus.compare("success")!=0){
 		//request username and password until correct combination is entered
 		memset(&loginBuffer, 0, BUFFERSIZE);
@@ -261,6 +262,7 @@ void login(int sock, char outBuffer[]){
 	}
 	if(loginStatus.compare("success")==0){
 		cout<<"You have successfully logged in"<<endl;
+		cout<<loginMessage.substr(47);
 		memset(&loginBuffer, 0, BUFFERSIZE);	
 
 	}
@@ -349,11 +351,6 @@ void getCommand(char* outBuffer) {
 		message.append(string(outBuffer));
 		newInputFromUser = false;
 		
-    }
-    else if (strncmp(outBuffer, "./group", 7) == 0)
-    {
-        commandSent = "group";
-        requestId = str.substr(str.find(" ") + 1);
     }
     else if (strncmp(outBuffer, "./group", 7) == 0)
     {

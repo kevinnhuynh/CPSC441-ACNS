@@ -15,7 +15,7 @@ string ChatManager::retrieveChat(string chatId, string access, string channelTyp
 	}	
 }	
 	
-string ChatManager::addMessage(string chatId, string access, string message){
+string ChatManager::addMessage(string chatId, string access, string message, string timestamp){
 	list<ChatHistory>::iterator it;		
 	for (it = privateChannels.begin();it !=privateChannels.end();++it){
 		if((*it).getFilename() == chatId){
@@ -24,7 +24,7 @@ string ChatManager::addMessage(string chatId, string access, string message){
 		}
 		
 	}	
-		string formattedmessage="";
+		string formattedmessage=timestamp;
 		formattedmessage+= (access+": "+message+"\n");
 		string updatedChat = (*it).addMessageToChat(formattedmessage);
 		

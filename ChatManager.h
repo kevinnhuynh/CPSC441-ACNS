@@ -31,7 +31,7 @@ class ChatManager{
 		/*
 		*adds the message to the chat and returns the updated chat
 		*/
-		string addMessage(string chatId, string access, string message);
+		string addMessage(string chatId, string access, string message, string time);
 		/*
 		*creates a chatfile and returns a stringid of that file, also adds ChatHistory object to database
 		*/
