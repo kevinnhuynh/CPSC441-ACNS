@@ -6,9 +6,9 @@
 int ChatHistory::channelIDCounter=0;
 
 
-ChatHistory::ChatHistory(string access, string type):FileInfo(to_string(++channelIDCounter),access){
+ChatHistory::ChatHistory(string access, string type):FileInfo(access,access){
 	this->channelType = type;
-	this->channelID = channelIDCounter;
+	this->channelID = ++channelIDCounter;
 }
 
 ChatHistory::ChatHistory(string filename, string channelId, string channelType,list<string>accessList):FileInfo(filename,accessList){

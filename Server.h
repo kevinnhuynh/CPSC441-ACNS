@@ -34,6 +34,8 @@ public:
 	void unsubscribeToChannel();
 	void manageRequestQueue();
 	void manageResponseQueue();
+	void handleRequest(string);
+	
 };
 
 #endif

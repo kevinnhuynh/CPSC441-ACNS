@@ -15,20 +15,22 @@ string ChatManager::retrieveChat(string chatId, string access, string channelTyp
 	}	
 }	
 	
-string ChatManager::addMessage(string chatId, string access, string message){
-			list<ChatHistory>::iterator it;		
-		
+string ChatManager::addMessage(string chatId, string access, string message, string timestamp){
+	list<ChatHistory>::iterator it;		
 	for (it = privateChannels.begin();it !=privateChannels.end();++it){
 		if((*it).getFilename() == chatId){
+
 			break;
 		}
 		
 	}	
-		string formattedmessage="";
+		string formattedmessage=timestamp;
+		formattedmessage+=" ";
 		formattedmessage+= (access+": "+message+"\n");
 		string updatedChat = (*it).addMessageToChat(formattedmessage);
 		
 		return updatedChat;
+		return "pippip";
 	}
 	
 
@@ -43,7 +45,7 @@ string ChatManager::createChat(string access, string type){
 	
 }
 
-void ChatManager::addAccess(string chatId, string access){
+string ChatManager::addAccess(string chatId, string access){
 	list<ChatHistory>::iterator it;
 
 	for (it = privateChannels.begin();it !=privateChannels.end();++it){
@@ -52,8 +54,10 @@ void ChatManager::addAccess(string chatId, string access){
 		}
 		
 	}	
-	(*it).addAccess(access);
-	updateAccessInDB((*it).getFilename(),(*it).getAccessIDList());
+	string newFilename = (*it).addAccess(access);
+	updateAccessInDB((*it).getChannelID(),(*it).getAccessIDList());
+	updateFilenameInDB((*it).getChannelID(), (*it).getFilename());
+	return newFilename;
 }
 
 void ChatManager::saveChatHistoryCounter(){
@@ -98,8 +102,8 @@ void ChatManager::initializeTables(){
     }
 
     string sql = " CREATE TABLE IF NOT EXISTS CHATS("
-                        "FILENAME TEXT PRIMARY KEY      NOT NULL,"
-                        "CHANNELID       TEXT    NOT NULL,"
+                        "FILENAME TEXT       NOT NULL,"
+                        "CHANNELID       TEXT PRIMARY KEY   NOT NULL,"
                         "CHANNELTYPE          TEXT    NOT NULL,"
                         "ACCESSIDLIST     TEXT    );";
 
@@ -129,9 +133,7 @@ void ChatManager:: createChannelListFromDB(){
         //cout<<actionStatus<<endl;
         //cout<<"SQL error: "<<err_message<<endl;
         privateChannels = temp;
-	
-	
-	
+		
 	
 }
 
@@ -139,18 +141,23 @@ void ChatManager::storeChat(ChatHistory chat){
 
         string sql("INSERT INTO CHATS ('FILENAME', 'CHANNELID','CHANNELTYPE', 'ACCESSIDLIST') VALUES('"+chat.getFilename()+"', '"+string(chat.getChannelID())+"', '"+chat.getChannelType()+"', '"+ChatManager::convertStringListToString(chat.getAccessIDList())+"');");
         actionStatus = sqlite3_exec(DB, sql.c_str(), NULL, 0, &err_message);
-		cout<<sql<<endl;
+		//cout<<sql<<endl;
 //cout<<"SQL error: "<< err_message<<endl;
 
 }
 
-void ChatManager::updateAccessInDB(string filename, list<string> access){
+void ChatManager::updateAccessInDB(string channelID, list<string> access){
 	
-	string sql = "UPDATE CHATS set ACCESSIDLIST = '"+ChatManager::convertStringListToString(access)+"' where FILENAME='"+filename+"';";
+	string sql = "UPDATE CHATS set ACCESSIDLIST = '"+ChatManager::convertStringListToString(access)+"' where CHANNELID='"+channelID+"';";
     actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
 
+		
+}
+
+void ChatManager::updateFilenameInDB(string channelID, string newFilename){
 	
-	
+	string sql = "UPDATE CHATS set FILENAME = '"+newFilename+"' where CHANNELID='"+channelID+"';";
+    actionStatus = sqlite3_exec(DB, sql.c_str(),NULL, NULL, &err_message);
 }
 
 

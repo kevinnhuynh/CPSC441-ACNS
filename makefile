@@ -6,21 +6,21 @@
 
 #**************************************************************
 
-all: Server
+all: Server Client SetUpDatabase
 
 Server: Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o
 	g++ --std=c++11 -o Server Server.o EmailServer.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o -lsqlite3 -lcurl
 
 Client: TCPClient.o
-	g++ --std=c++11 -o Client TCPClient.o
+	g++ --std=c++11 -o Client TCPClient.o -lpthread
 
-SetUpDatabase: ChatSystemDemoSetup.o
+SetUpDatabase: ChatSystemDemoSetup.o User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o ChatSystemDemoSetup.o
 	g++ --std=c++11 -o SetUpDatabase User.o DatabaseManager.o ChatManager.o ChatHistory.o FileInfo.o ChatSystemDemoSetup.o -lsqlite3
 
 #ADD MORE COMPILE COMMANDS HERE FOR SERVER
 
 TCPClient.o: TCPClient.cpp
-	g++ --std=c++11 -c TCPClient.cpp
+	g++ --std=c++11 -c TCPClient.cpp -lpthread
 
 User.o: User.cpp
 	g++ --std=c++11 -c User.cpp
@@ -41,10 +41,10 @@ ChatSystemDemoSetup.o: ChatSystemDemoSetup.cpp
 	g++ --std=c++11 -c ChatSystemDemoSetup.cpp
 
 EmailServer.o: EmailServer.cpp
-	g++ -c EmailServer.cpp
+	g++ --std=c++11 -c EmailServer.cpp
 
 Server.o: Server.cpp
-	g++ --std=c++11 -c Server.cpp
+	g++  --std=c++11 -c Server.cpp
 
 clean:
-	rm *.o 
+	rm *.o

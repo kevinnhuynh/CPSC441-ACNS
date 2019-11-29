@@ -28,7 +28,7 @@ class FileInfo{
 		bool checkAccess(string id);
 		string getFilename(){return filename;}
 		list<string>getAccessIDList(){return accessIDList;}
-		void addAccess(string access);
+		string addAccess(string access);
 	
 };
 

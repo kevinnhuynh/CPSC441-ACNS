@@ -22,7 +22,6 @@ FileInfo::FileInfo(const FileInfo& src){
 	accessIDList=src.accessIDList;
 	filename = src.filename;
 
-
 }
 
 FileInfo FileInfo::operator = (const FileInfo& rhs){
@@ -64,8 +63,12 @@ bool FileInfo::checkAccess(string id){
 	
 }
 
-void FileInfo::addAccess(string access){
+string FileInfo::addAccess(string access){
 	accessIDList.push_front(access);
+	string oldFilename = filename;
+	filename.append(access);
+	rename(oldFilename.c_str(),filename.c_str());
+	return filename;
 	
 }
 

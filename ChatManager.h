@@ -23,6 +23,7 @@ class ChatManager{
         char *err_message;
 		
 	public:
+	int getActionStatus(){return actionStatus;}
 	/*
 	*returns a string containing all the chat history for the requested chatID and whose requesting(access)
 	*/
@@ -30,7 +31,7 @@ class ChatManager{
 		/*
 		*adds the message to the chat and returns the updated chat
 		*/
-		string addMessage(string chatId, string access, string message);
+		string addMessage(string chatId, string access, string message, string time);
 		/*
 		*creates a chatfile and returns a stringid of that file, also adds ChatHistory object to database
 		*/
@@ -39,7 +40,11 @@ class ChatManager{
 		/*
 		*adds a username to a file's access list, also updates ChatHistory object in database
 		*/
-		void addAccess(string chatId, string access);
+		string addAccess(string chatId, string access);
+		
+		/*
+		*updates the filename in the database*/
+		void updateFilenameInDB(string channelID, string newFilename);
 		ChatManager();
 		~ChatManager();
 		/*
