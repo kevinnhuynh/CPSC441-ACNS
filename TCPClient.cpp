@@ -212,7 +212,7 @@ void readInput(void){
 }
 
 void handleResponse(string response){
-	string command = response.substr(0,11);
+	string command = response.substr(0,13);
 	if(command.compare(0 , 10, "friendlist", 0, 10)==0){
 		cout<<"Your friendlist is:"<<endl;
 		cout<<response.substr(40)<<endl;
@@ -224,6 +224,12 @@ void handleResponse(string response){
 	else if(command.compare(0, 4, "chat", 0, 4)==0) {
 		cout<<response.substr(40)<<endl;
 		message = "";
+	}
+	else if (command.compare(0, 9, "addfriend", 0, 9) == 0) {
+		cout << "Invitation email sent.\nA user has accepted your friend request, you are now friends with: " << response.substr(40);
+	}
+	else if (command.compare(0, 12, "deletefriend", 0, 12) == 0) {
+		cout << "The following user is now deleted from your friend list: " << response.substr(40);
 	}
 }
 
